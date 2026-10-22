@@ -300,4 +300,96 @@ Building with a strict human-in-the-loop review process and zero auto-pushes. Ex
 
 ---
 
+## 🛋️ Day 2 (Part 3): Real PostgreSQL Database Seed & Rich Storefront UI
+- **তারিখ:** ২২ অক্টোবর, ২০২৬
+- **স্ট্যাটাস:** Completed & Verified (Build Passed 100%)
+- **মূল লক্ষ্য:** PostgreSQL `nestora_db`-তে ৪টি ক্যাটাগরি ও ৮টি রিয়েল অথেন্টিক প্রোডাক্ট সীড করা, রিইউজেবল রেসপনসিভ প্রোডাক্ট কার্ড তৈরি এবং সার্ভার কম্পোনেন্টে রিয়েল ডাটা ফেচ করে ফুলস্ট্যাক হোমপেজ সাজানো।
+
+### 🧠 আর্কিটেকচারাল সমাধান ও টিম-টপার কনসেপ্টস:
+1. **Zero Lorem Ipsum Database Seed (`src/lib/db/seed.ts`):**
+   - কোনোরকম ডামি টেক্সট ছাড়াই NESTORA ব্র্যান্ডের আসল ফিলোসফি অনুযায়ী ডাটা ইনসার্ট করা হয়েছে:
+     - **ক্যাটাগরি:** Desk & Workspace, Ambient Lighting, Handcrafted Ceramics, Minimal Storage।
+     - **প্রোডাক্টস:** Kanso Solid Oak Monitor Riser, Akari Ambient Brass Table Lamp, Hasami Matte Stoneware Carafe ইত্যাদি।
+     - **Admin Approval Rule Enforced:** সব প্রোডাক্টে `isApproved: true`, `status: 'ACTIVE'` এবং ভ্যারিয়েন্ট ভিত্তিক রিয়েল স্টক কোয়ান্টিটি ইনসার্ট করা হয়েছে।
+2. **Reusable & Responsive Product Card (`src/components/products/product-card.tsx`):**
+   - ইমেজ হোভার জুমিং অ্যানিমেশন।
+   - রিয়েল কারেন্সি ফরম্যাটিং (`$125.00`) ও ডিসকাউন্ট পারসেন্টেজ ব্যাজ (`Save 14%`)।
+   - কুইক **"Add to Cart"** এবং **"Wishlist"** ইন্টারেকশন বাটন।
+   - `xs` (২ কলাম) থেকে শুরু করে `2xl` (৪ কলাম) পর্যন্ত পারফেক্ট গ্রিড স্কেলিং।
+3. **Full-Stack Dynamic Home Page (`src/app/page.tsx`):**
+   - সার্ভার কম্পোনেন্ট (RSC) সরাসরি PostgreSQL ডাটাবেজে কুয়েরি চালিয়ে লেটেস্ট অনুমোদিত প্রোডাক্ট ফেচ করে রেন্ডার করে।
+   - **Hero Section:** মিনিমালিস্ট ও হাইপার-রেসপনসিভ হেডলাইন সহ ডিরেক্ট কালেকশন সিটিএ।
+   - **Category Showcase:** হাই-রেজ্যুলুশন ইমেজ ব্যাকগ্রাউন্ড সহ ৪টি ক্যাটাগরি কার্ড।
+   - **Featured Collection Grid:** রিয়েল ডাটাবেজ প্রোডাক্ট কার্ড গ্রিড।
+   - **Brand Values:** Tracked Global Delivery, Sustainable Materials, 30-Day Calm Guarantee, Single Vendor।
+   - **Rich E-Commerce Footer:** ক্যাটাগরি লিঙ্কস, কাস্টমার কেয়ার, নিউজলেটার ইনপুট ও লিগ্যাল কপিরাইট।
+
+### 🧪 ভেরিফিকেশন রেজাল্ট:
+- `npx tsx src/lib/db/seed.ts` ➔ **PASS** (৪টি ক্যাটাগরি ও ৮টি প্রোডাক্ট ডাটাবেজে ইনসার্ট সম্পন্ন)
+- `npm run typecheck` ➔ **PASS** (০ টাইপ এরর)
+- `npm run build` ➔ **PASS** (`Route: ƒ /` ডাইনামিকালি কম্পাইলড)
+
+### 📋 আপনার জন্য স্টেপ-বাই-স্টেপ চেকলিস্ট:
+1. ব্রাউজারে `http://localhost:3000` রিফ্রেশ দিয়ে দেখুন—পেজটি এখন জীবন্ত একটি আন্তর্জাতিক মানের হোম & লাইফস্টাইল ই-কমার্সে রূপ নিয়েছে!
+2. মোবাইল ভিউ (iPhone SE / iPhone 16) এবং ফুল ডেস্কটপ ভিউতে টেস্ট করুন—কার্ডগুলো নিখুঁতভাবে গ্রিডে সাজানো দেখতে পাবেন।
+3. কমিট দিন:
+   ```bash
+   git add .
+   git commit -m "feat(storefront): seed authentic products and assemble full dynamic homepage with responsive product cards"
+   git push origin main
+   ```
+
+---
+
+## 💎 Day 2 (Part 4): Ultra-Premium Luxury Hero Showcase & 100% Verified Authentic Imagery
+- **তারিখ:** ২২ অক্টোবর, ২০২৬
+- **স্ট্যাটাস:** Completed & Verified (Build Passed 100%)
+- **মূল লক্ষ্য:** 
+  1. ইউজারের স্ক্রিনশট রিভিউ করে এম্পটি/প্লেন Hero সেকশনকে একটি আন্তর্জাতিক লাক্সারি অ্যাথেলিয়ার (Luxury Atelier Flagship Showcase) সেন্ট্রাল ভিজ্যুয়ালে রূপান্তর করা।
+  2. সাইটের প্রতিটি ইমেজ লিংক অডিট করে ১০০% ভেরিফাইড (HTTP 200) এবং কনসেপচুয়ালি পারফেক্ট ইমেজ যুক্ত করা (যেমন: লিনেন বাস্কেটের ক্ষেত্রে আসল ওভেন লিনেন বাস্কেট, ব্রাস ল্যাম্পের ক্ষেত্রে আর্কিটেকচারাল ব্রাস ল্যাম্প, যাতে কোনো ভুল বা মিসম্যাচড ইমেজ না থাকে)।
+
+### 🧠 আর্কিটেকচারাল সমাধান ও টিম-টপার কনসেপ্টস:
+1. **Ultra-Luxury Split-Screen Hero Showcase (`src/app/page.tsx`):**
+   - **Left Narrative Column:**
+     - স্মল-ব্যাচ অ্যাথেলিয়ার ব্যাজ: `✦ Autumn/Winter Small-Batch 04 • Single-Vendor Atelier`
+     - হাই-এন্ড সেরিফ টাইপোগ্রাফি: `Thoughtful living, quietly refined.`
+     - আর্কিটেকচারাল লাইফস্টাইল কপিরাইটিং ও ডুয়াল অ্যাকশন বাটন (`Explore Collection` + `Desk Architecture`)
+     - কাস্টমার রিভিউ ও ম্যাটেরিয়াল ট্রাস্ট মেট্রিক্স (`★★★★★ 4.9/5 Rating`, `100% Solid Certified Timber`, `Zero Plastic Packaging`)
+   - **Right Flagship Visual Centerpiece:**
+     - হাই-রেজ্যুলুশন জাপানিজ ওক অ্যাথেলিয়ার ওয়ার্কস্পেস লাইফস্টাইল ফটোগ্রাফি।
+     - গ্লাস-মরফিজম ফ্লোটিং ব্যাজ: `✦ Flagship Piece • Kyoto White Oak`
+     - লাইভ ইন্টারেক্টিভ প্রোডাক্ট ইনফো কার্ড: `Kanso Solid Oak Monitor Riser` • `$125.00` • `● In stock` (লাইভ পালসিং স্ট্যাটাস সহ)
+     - ৩টি মিনি ম্যাটেরিয়াল স্পেক্স পিল: `🌿 100% Solid Oak` | `⚡ Cable Route` | `📦 Cork Dampers`
+2. **100% Verified & Semantic Image Integrity (`src/lib/db/seed.ts`):**
+   - প্রতিটি ইমেজ হেড রিকোয়েস্ট (HTTP HEAD) টেস্ট করে ভেরিফাই করা হয়েছে (সবগুলোই HTTP 200 স্ট্যাটাস সম্পন্ন)।
+   - মিসম্যাচড ইমেজগুলো সম্পূর্ণ পরিবর্তন করা হয়েছে:
+     - *Organic Woven Linen Nesting Baskets* (আগে পারফিউম বোতল আসত) ➔ এখন আসল হ্যান্ড-ওভেন টেক্সচার্ড লিনেন স্টোরেজ বাস্কেট।
+     - *Akari Ambient Brass Table Lamp* (আগে ব্ল্যাক ল্যাম্প ছিল) ➔ এখন অরিজিনাল ওয়ার্ম অ্যাম্বিয়েন্ট ব্রাস ল্যাম্প।
+     - *Hasami Matte Stoneware Pour-Over Carafe* ➔ এখন হাই-ফায়ার্ড জাপানিজ পোর-ওভার সিরামিক কারাফে।
+     - *Faceted Walnut Catchall Tray* ➔ এখন সলিড আমেরিকান কার্ভড ওয়ালনাট ভ্যালেট ট্রে।
+     - *Precision Anodized Aluminum Pen Dock* ➔ এখন মিনিমালিস্ট ডেক্স পেন ডক স্টেশনারি।
+     - *Wabi Speckled Ceramic Coffee Tumbler* ➔ এখন হ্যান্ডক্রাফটেড স্পেক্ল্ড সিরামিক টাম্বলার।
+3. **Universal Remote Image Configuration (`next.config.ts`):**
+   - `hostname: "**"` ওয়াইল্ডকার্ড কনফিগারেশনের মাধ্যমে যেকোনো ভ্যালিড রিমোট ইমেজ লিঙ্ক নিরবচ্ছিন্নভাবে রেন্ডার হতে পারবে।
+
+### 🧪 ভেরিফিকেশন রেজাল্ট:
+- Image URL HTTP Verification: **100% Passed (HTTP 200 OK)**
+- Database Re-seed (`npx tsx src/lib/db/seed.ts`): **PASS** (সবগুলো প্রোডাক্ট ও ক্যাটাগরি ইমেজ আপডেটেড)
+- `npm run typecheck` ➔ **PASS** (০ টাইপ এরর)
+- `npm run build` ➔ **PASS** (০ এরর সহ প্রোডাকশন বিল্ড সাকসেসফুল)
+- Live Localhost Test (`http://localhost:3000`): **HTTP 200 OK** (Hero ও প্রোডাক্ট কার্ডগুলো নিখুঁতভাবে রেন্ডার হচ্ছে)
+
+### 📋 আপনার জন্য স্টেপ-বাই-স্টেপ চেকলিস্ট:
+1. ব্রাউজারে `http://localhost:3000` রিফ্রেশ দিন।
+2. দেখতে পাবেন Hero সেকশনটি এখন সাধারণ টেক্সট বক্সের বদলে একটি লাক্সারি ব্র্যান্ডের মতো স্প্লিট-স্ক্রিন ফ্ল্যাগশিপ ভিজ্যুয়াল, গ্লাস-মরফিক প্রাইস ট্যাগ এবং ট্রাস্ট ব্যাজ সহ অত্যন্ত আকর্ষণীয় হয়ে উঠেছে।
+3. নিচে স্ক্রল করে ফিচার্ড কালেকশন দেখুন—প্রতিটি পণ্যের ছবি ১০০% প্রাসঙ্গিক এবং কাজ করছে।
+4. ম্যানুয়ালি কমিট দিন:
+   ```bash
+   git add .
+   git commit -m "feat(storefront): luxury split-screen hero showcase, verified product images, and wildcard image config"
+   git push origin main
+   ```
+
+---
+
 *(পরবর্তী দিনের লগগুলো এখানে পর্যায়ক্রমে যোগ হবে)*
