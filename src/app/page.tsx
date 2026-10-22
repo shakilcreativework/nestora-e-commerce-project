@@ -1,4 +1,5 @@
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { UserNav } from "@/components/navigation/user-nav";
 import {
   ShoppingBag,
   Heart,
@@ -56,6 +57,9 @@ export default function Home() {
           <div className="flex items-center gap-2 xs:gap-3 sm:gap-4">
             {/* Theme Toggle (Light / Dark / System) */}
             <ThemeToggle />
+
+            {/* User Auth Navigation (Sign In / User Menu) */}
+            <UserNav />
 
             {/* Wishlist Icon */}
             <button
