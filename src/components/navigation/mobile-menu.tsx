@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "@/lib/auth-client";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
+import { openCart, selectCartTotalQuantity } from "@/lib/store/features/cart-slice";
 import {
   Menu,
   X,
@@ -26,9 +28,12 @@ interface MobileMenuProps {
   cartCount?: number;
 }
 
-export function MobileMenu({ cartCount = 0 }: MobileMenuProps) {
+export function MobileMenu({ cartCount: propCartCount }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { data: session } = useSession();
+  const dispatch = useAppDispatch();
+  const reduxCartCount = useAppSelector(selectCartTotalQuantity);
+  const cartCount = propCartCount !== undefined ? propCartCount : reduxCartCount;
 
   // Prevent background scroll when mobile drawer is open
   useEffect(() => {
@@ -246,10 +251,13 @@ export function MobileMenu({ cartCount = 0 }: MobileMenuProps) {
               <ChevronRight className="w-4 h-4 text-stone-400" />
             </Link>
 
-            <Link
-              href="/cart"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800/60 transition-colors"
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                dispatch(openCart());
+              }}
+              className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-stone-800 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800/60 transition-colors text-left"
             >
               <div className="flex items-center gap-2.5">
                 <ShoppingBag className="w-4 h-4 text-stone-500 dark:text-stone-400" />
@@ -262,7 +270,7 @@ export function MobileMenu({ cartCount = 0 }: MobileMenuProps) {
               ) : (
                 <span className="text-xs text-stone-400">Empty</span>
               )}
-            </Link>
+            </button>
           </div>
 
           {/* Theme Selector */}

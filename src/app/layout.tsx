@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { ReduxProvider } from "@/components/providers/redux-provider";
+import { CartDrawer } from "@/components/cart/cart-drawer";
 
 export const metadata: Metadata = {
   title: "NESTORA — Home & Lifestyle",
@@ -24,7 +26,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <ReduxProvider>
+            {children}
+            <CartDrawer />
+          </ReduxProvider>
         </ThemeProvider>
       </body>
     </html>

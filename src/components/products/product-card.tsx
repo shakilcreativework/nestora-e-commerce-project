@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Heart, ShoppingBag, Check } from "lucide-react";
+import { useAppDispatch } from "@/lib/store/hooks";
+import { addToCart } from "@/lib/store/features/cart-slice";
 
 export interface ProductCardProps {
   id: string;
@@ -18,6 +20,7 @@ export interface ProductCardProps {
 }
 
 export function ProductCard({
+  id,
   name,
   slug,
   price,
@@ -27,6 +30,7 @@ export function ProductCard({
   imageUrl,
   isFeatured,
 }: ProductCardProps) {
+  const dispatch = useAppDispatch();
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
 
@@ -50,6 +54,19 @@ export function ProductCard({
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
+    dispatch(
+      addToCart({
+        id,
+        name,
+        slug,
+        price,
+        compareAtPrice,
+        currency,
+        imageUrl,
+        categoryName,
+        maxStock: 20,
+      })
+    );
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 1600);
   };

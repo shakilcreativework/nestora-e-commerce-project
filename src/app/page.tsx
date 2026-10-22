@@ -6,6 +6,7 @@ import { eq, and } from "drizzle-orm";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { UserNav } from "@/components/navigation/user-nav";
 import { MobileMenu } from "@/components/navigation/mobile-menu";
+import { CartButton } from "@/components/navigation/cart-button";
 import { ProductCard } from "@/components/products/product-card";
 import { NewsletterForm } from "@/components/ui/newsletter-form";
 import {
@@ -119,17 +120,8 @@ export default async function Home() {
               <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--muted-text)] hover:text-red-500 transition-colors" />
             </Link>
 
-            {/* Cart Icon (Always visible) */}
-            <Link
-              href="/cart"
-              aria-label="Cart"
-              className="p-1.5 xs:p-2 sm:p-2.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-[var(--foreground)] transition-colors relative flex items-center gap-1.5"
-            >
-              <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="inline-flex items-center justify-center text-[10px] font-bold bg-[#264E3A] dark:bg-[#478466] text-white w-4 h-4 rounded-full">
-                0
-              </span>
-            </Link>
+            {/* Cart Button with live Redux count & slide-over drawer trigger */}
+            <CartButton />
 
             {/* User Account Navigation (Desktop only) */}
             <div className="hidden md:flex">
