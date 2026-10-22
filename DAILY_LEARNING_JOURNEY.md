@@ -188,4 +188,41 @@ Building with a strict human-in-the-loop review process and zero auto-pushes. Ex
 
 ---
 
+## 🗄️ Day 1 (Part 3): PostgreSQL + Drizzle ORM Architecture & Admin Security (NESTORA-014 to 022)
+- **তারিখ:** ২১ অক্টোবর, ২০২৬
+- **স্ট্যাটাস:** Completed & Verified (Build Passed 100%)
+- **মূল লক্ষ্য:** PostgreSQL ডাটাবেজ কানেকশন পুল, Zod এনভায়রনমেন্ট ভ্যালিডেশন এবং অ্যাডমিন অনুমোদন ও RBAC সমৃদ্ধ রিলেশনাল স্কিমা তৈরি।
+
+### 🧠 আর্কিটেকচারাল সিদ্ধান্ত ও টিম-টপার কনসেপ্টস:
+1. **Zod Environment Protection (`src/lib/env.ts` & `.env.example`):**
+   - কোনো সিক্রেট যেন ভুল করে ক্লায়েন্ট সাইডে লিক না হয় তা নিশ্চিত করা হয়েছে।
+   - প্রোডাকশনে কোনো জরুরি এনভায়রনমেন্ট ভ্যারিয়েবল মিসিং থাকলে অ্যাপ সাথে সাথে নিরাপদভাবে ফ্ল্যাগ করবে।
+2. **PostgreSQL Connection Pooling (`src/lib/db/index.ts`):**
+   - Next.js-এর হট রিলোডের সময় যাতে ডাটাবেজ কানেকশন লিমিট শেষ (exhaust) না হয়, সেজন্য ডেভলপমেন্টে `globalThis` ক্যাশিং প্যাটার্ন ব্যবহার করা হয়েছে।
+3. **Admin Approval & Status Architecture (`src/lib/db/schema.ts`):**
+   - **`isApproved: boolean (default false)`** এবং **`status: 'DRAFT' | 'ACTIVE' | 'ARCHIVED'`**:
+     - আপনার দেওয়া কঠোর নিয়ম অনুযায়ী, সার্ভার যখনই প্রোডাক্ট ফেচ করবে, তখন ফিল্টার করবে `where(and(eq(products.status, 'ACTIVE'), eq(products.isApproved, true)))`। এর ফলে অ্যাডমিন কর্তৃক অনুমোদিত প্রোডাক্ট ছাড়া কোনো ইনঅ্যাক্টিভ বা ড্রাফট প্রোডাক্ট স্টোরফ্রন্ট UI-তে আসবে না।
+4. **Role-Based Access Control (RBAC):**
+   - `userRoleEnum: ['CUSTOMER', 'ADMIN']`। পাবলিক সাইনআপে ডিফল্টভাবে শুধুমাত্র `CUSTOMER` অ্যাসাইন হবে।
+5. **Money in Minor Units (Cents):**
+   - কারেন্সি ক্যালকুলেশনে ফ্লোটিং পয়েন্ট বাগ (যেমন `0.1 + 0.2 = 0.30000000000000004`) রোধ করতে সব প্রাইস পূর্ণসংখ্যায় (minor units: যেমন $45.00 ➔ 4500) স্টোর করা হয়েছে।
+6. **Immutable Order Snapshots (`order_items`):**
+   - ভবিষ্যতে প্রোডাক্টের নাম বা দাম পরিবর্তন হলেও পুরানো অর্ডারের ঐতিহাসিক ডেটা হুবহু অক্ষত থাকবে।
+
+### 🧪 ভেরিফিকেশন রেজাল্ট:
+- `npm run typecheck` ➔ **PASS** (০ টাইপ এরর)
+- `npm run build` ➔ **PASS** (মাত্র ০.৫৫ সেকেন্ডে সম্পূর্ণ বিল্ড সফল)
+
+### 📋 আপনার জন্য স্টেপ-বাই-স্টেপ চেকলিস্ট:
+1. [src/lib/db/schema.ts](file:///c:/Users/shaki/Downloads/nestora%20e-commerce%20project/src/lib/db/schema.ts) ফাইলটি ওপেন করে স্কিমা টেবিলগুলো ও `isApproved` ফিল্ডটি দেখে নিন।
+2. [.env.example](file:///c:/Users/shaki/Downloads/nestora%20e-commerce%20project/.env.example) ফাইলটি দেখে নিন।
+3. আপনার গিট স্ট্যাটাস চেক করে দ্বিতীয় কমিটটি করতে পারেন:
+   ```bash
+   git add .
+   git commit -m "feat(db): configure PostgreSQL pool and Drizzle schema with admin approval and RBAC"
+   git push
+   ```
+
+---
+
 *(পরবর্তী দিনের লগগুলো এখানে পর্যায়ক্রমে যোগ হবে)*

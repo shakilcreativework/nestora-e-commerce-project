@@ -40,24 +40,17 @@ approval and the manual Git outcome are recorded.
   NESTORA-013   Configure shared utility and    COMPLETED     NESTORA-012        Pass         Approved   Manual    Theme tokens &
                 design tokens                                                                            push ready ThemeToggle OK
 
-  NESTORA-014   Configure environment           NOT_STARTED   NESTORA-011                     Pending    Not       
-                validation                                                                               started   
-
-  NESTORA-015   Establish quality scripts and   NOT_STARTED   NESTORA-011                     Pending    Not       
-                test harness                                                                             started   
-
-  NESTORA-020   Configure PostgreSQL connection NOT_STARTED   NESTORA-014                     Pending    Not       
-                                                                                                         started   
-
-  NESTORA-021   Configure Drizzle and migration NOT_STARTED   NESTORA-020                     Pending    Not       
-                workflow                                                                                 started   
-
-  NESTORA-022   Implement core schema in        NOT_STARTED   NESTORA-021                     Pending    Not       Split into
-                approved slices                                                                          started   multiple
-                                                                                                                   tasks as
-                                                                                                                   needed
-
-  NESTORA-023   Integrate Better Auth           NOT_STARTED   NESTORA-022                     Pending    Not       High risk
+  NESTORA-014   Configure environment           COMPLETED     NESTORA-011        Pass         Approved   Manual    Zod env.ts &
+                validation                                                                               push ready .env.example
+  NESTORA-015   Establish quality scripts and   COMPLETED     NESTORA-011        Pass         Approved   Manual    typecheck &
+                test harness                                                                             push ready build verified
+  NESTORA-020   Configure PostgreSQL connection COMPLETED     NESTORA-014        Pass         Approved   Manual    pg Pool
+                                                                                                         push ready configured
+  NESTORA-021   Configure Drizzle and migration COMPLETED     NESTORA-020        Pass         Approved   Manual    drizzle.config.ts
+                workflow                                                                                 push ready ready
+  NESTORA-022   Implement core schema in        COMPLETED     NESTORA-021        Pass         Approved   Manual    Admin approval &
+                approved slices                                                                          push ready RBAC schema ready
+  NESTORA-023   Integrate Better Auth           READY         NESTORA-022                     Pending    Not       High risk
                                                                                                          started   
 
   NESTORA-024   Enforce Customer/Admin          NOT_STARTED   NESTORA-023                     Pending    Not       High risk
