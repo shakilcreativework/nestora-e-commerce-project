@@ -1,5 +1,6 @@
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { UserNav } from "@/components/navigation/user-nav";
+import { MobileMenu } from "@/components/navigation/mobile-menu";
 import {
   ShoppingBag,
   Heart,
@@ -15,32 +16,35 @@ import {
 
 export default function Home() {
   return (
-    <main className="min-h-screen flex flex-col justify-between selection:bg-[#264E3A] selection:text-white dark:selection:bg-[#478466]">
+    <main className="min-h-screen w-full overflow-x-hidden flex flex-col justify-between selection:bg-[#264E3A] selection:text-white dark:selection:bg-[#478466]">
       {/* Top Notification Bar */}
-      <div className="w-full bg-[#264E3A] dark:bg-[#182C22] text-stone-100 text-[11px] xs:text-xs py-1.5 px-3 xs:px-4 text-center font-medium tracking-wide flex items-center justify-center gap-2">
+      <div className="w-full bg-[#264E3A] dark:bg-[#182C22] text-stone-100 text-[11px] xs:text-xs py-1.5 px-3 xs:px-4 text-center font-medium tracking-wide flex items-center justify-center gap-2 overflow-hidden">
         <Sparkles className="w-3.5 h-3.5 text-[#B2834E] shrink-0" />
-        <span>Welcome to NESTORA — Thoughtful essentials for everyday living.</span>
+        <span className="truncate">Welcome to NESTORA — Thoughtful essentials for everyday living.</span>
       </div>
 
       {/* Main Navigation Header */}
-      <header className="sticky top-0 z-50 w-full backdrop-blur-md bg-[var(--background)]/85 border-b border-black/5 dark:border-white/10 transition-colors duration-200">
-        <div className="max-w-7xl mx-auto px-4 xs:px-5 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:max-w-[1500px] h-16 sm:h-20 flex items-center justify-between gap-3 sm:gap-6">
-          {/* Brand Logo */}
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-[#264E3A] dark:bg-[#478466] flex items-center justify-center text-white font-serif font-bold text-lg sm:text-xl shadow-sm">
+      <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-[var(--background)]/90 border-b border-black/5 dark:border-white/10 transition-colors duration-200">
+        <div className="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:max-w-[1500px] h-16 sm:h-20 flex items-center justify-between gap-2 sm:gap-6">
+          {/* Left: Mobile Hamburger Menu & Brand Logo */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Mobile Hamburger Drawer Trigger */}
+            <MobileMenu cartCount={0} />
+
+            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl bg-[#264E3A] dark:bg-[#478466] flex items-center justify-center text-white font-serif font-bold text-base sm:text-xl shadow-xs shrink-0">
               N
             </div>
             <div className="flex flex-col">
               <span className="font-serif text-lg xs:text-xl sm:text-2xl font-bold tracking-tight text-[var(--foreground)]">
                 NESTORA
               </span>
-              <span className="text-[10px] sm:text-xs tracking-widest uppercase text-[var(--muted-text)] font-mono -mt-1 hidden xs:block">
+              <span className="text-[10px] sm:text-xs tracking-widest uppercase text-[var(--muted-text)] font-mono -mt-1 hidden sm:block">
                 Home & Lifestyle
               </span>
             </div>
           </div>
 
-          {/* Quick Search bar (Tablet & Desktop) */}
+          {/* Center: Quick Search bar (Tablet & Desktop only) */}
           <div className="hidden md:flex items-center flex-1 max-w-md mx-4">
             <div className="relative w-full">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted-text)]" />
@@ -53,34 +57,38 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Header Right Actions */}
-          <div className="flex items-center gap-2 xs:gap-3 sm:gap-4">
-            {/* Theme Toggle (Light / Dark / System) */}
-            <ThemeToggle />
+          {/* Right Header Actions */}
+          <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-4 shrink-0">
+            {/* Theme Toggle (Visible on Desktop / Tablet md:flex) */}
+            <div className="hidden md:flex">
+              <ThemeToggle />
+            </div>
 
-            {/* User Auth Navigation (Sign In / User Menu) */}
-            <UserNav />
-
-            {/* Wishlist Icon */}
+            {/* Wishlist Icon (Visible on md:flex) */}
             <button
               type="button"
               aria-label="Wishlist"
-              className="p-2 sm:p-2.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-[var(--foreground)] transition-colors relative"
+              className="hidden md:flex p-2 sm:p-2.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-[var(--foreground)] transition-colors relative"
             >
               <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--muted-text)] hover:text-red-500 transition-colors" />
             </button>
 
-            {/* Cart Icon */}
+            {/* Cart Icon (Always visible) */}
             <button
               type="button"
               aria-label="Cart"
-              className="p-2 sm:p-2.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-[var(--foreground)] transition-colors relative flex items-center gap-1.5"
+              className="p-1.5 xs:p-2 sm:p-2.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-[var(--foreground)] transition-colors relative flex items-center gap-1.5"
             >
               <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="inline-flex items-center justify-center text-[10px] font-bold bg-[#264E3A] dark:bg-[#478466] text-white w-4 h-4 rounded-full">
                 0
               </span>
             </button>
+
+            {/* User Auth Navigation (Avatar / Sign In - Desktop & Tablet only) */}
+            <div className="hidden md:flex">
+              <UserNav />
+            </div>
           </div>
         </div>
       </header>

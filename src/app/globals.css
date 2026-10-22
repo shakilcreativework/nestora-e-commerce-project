@@ -2,14 +2,34 @@
 
 @variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+}
+
 @layer base {
   :root {
     --background: #FBFBF9;
     --foreground: #181918;
     --surface: #FFFFFF;
     --surface-muted: #F3F2EE;
+    --card: #FFFFFF;
+    --card-foreground: #181918;
+    --muted: #F3F2EE;
+    --muted-foreground: #686660;
     --border: #E6E4DD;
     --primary: #264E3A;
+    --primary-foreground: #FFFFFF;
     --accent: #B2834E;
     --muted-text: #686660;
   }
@@ -19,8 +39,13 @@
     --foreground: #F4F4F0;
     --surface: #181918;
     --surface-muted: #222422;
+    --card: #181918;
+    --card-foreground: #F4F4F0;
+    --muted: #222422;
+    --muted-foreground: #9E9D96;
     --border: #2A2D2A;
     --primary: #478466;
+    --primary-foreground: #FFFFFF;
     --accent: #C79A63;
     --muted-text: #9E9D96;
   }

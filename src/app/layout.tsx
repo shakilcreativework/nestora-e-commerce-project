@@ -16,7 +16,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         suppressHydrationWarning
-        className="antialiased min-h-screen bg-[var(--background)] text-[var(--foreground)]"
+        className="antialiased min-h-screen w-full overflow-x-hidden bg-[var(--background)] text-[var(--foreground)]"
       >
         <ThemeProvider
           attribute="class"
