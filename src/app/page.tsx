@@ -286,25 +286,35 @@ export default async function Home() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 xs:gap-3 sm:gap-4 md:gap-6">
+        {/* Curated Spaces Grid: 2 columns on mobile, sm, and md; 3 columns on lg; 4 columns on xl+ (matching product grid) */}
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           {allCategories.map((cat) => (
             <Link
               key={cat.id}
               href={`/category/${cat.slug}`}
-              className="group relative h-36 xs:h-44 sm:h-56 md:h-64 rounded-xl sm:rounded-2xl overflow-hidden border border-stone-200/60 dark:border-stone-800/60 shadow-xs"
+              className="group relative aspect-4/3 sm:aspect-5/4 rounded-xl sm:rounded-2xl overflow-hidden border border-stone-200/80 dark:border-stone-800/80 shadow-xs hover:shadow-md transition-all duration-300"
             >
               {cat.imageUrl && (
                 <Image
                   src={cat.imageUrl}
                   alt={cat.name}
                   fill
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                  className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                  className="object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-              <div className="absolute bottom-2.5 left-2.5 right-2.5 xs:bottom-3 xs:left-3 xs:right-3 sm:bottom-4 sm:left-4 sm:right-4 text-white">
-                <p className="text-[9px] xs:text-[10px] font-mono uppercase tracking-wider text-stone-300">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
+              
+              {/* Top Curated Space Badge */}
+              <div className="absolute top-2 left-2 xs:top-2.5 xs:left-2.5 sm:top-3 sm:left-3 z-10 pointer-events-none">
+                <span className="inline-block px-1.5 xs:px-2 py-0.5 text-[8.5px] xs:text-[9.5px] sm:text-[10px] font-bold uppercase tracking-wider rounded-md bg-black/50 backdrop-blur-md text-white border border-white/10 shadow-xs">
+                  Space
+                </span>
+              </div>
+
+              {/* Bottom Details */}
+              <div className="absolute bottom-2.5 left-2.5 right-2.5 xs:bottom-3 xs:left-3 xs:right-3 sm:bottom-4 sm:left-4 sm:right-4 text-white z-10">
+                <p className="text-[8.5px] xs:text-[9.5px] sm:text-[10px] font-mono uppercase tracking-wider text-stone-300">
                   Collection
                 </p>
                 <h3 className="font-serif text-xs xs:text-sm sm:text-base md:text-lg font-bold tracking-tight mt-0.5 group-hover:translate-x-1 transition-transform">
