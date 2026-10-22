@@ -225,4 +225,41 @@ Building with a strict human-in-the-loop review process and zero auto-pushes. Ex
 
 ---
 
+## 🔐 Day 2: Better Auth + PostgreSQL Drizzle Integration (NESTORA-023)
+- **তারিখ:** ২২ অক্টোবর, ২০২৬
+- **স্ট্যাটাস:** Completed & Verified (Build Passed 100%)
+- **মূল লক্ষ্য:** `better-auth` প্যাকেজ ইনস্টলেশন, Drizzle স্কিমায় সেশন ও অথ টেবিল যুক্তকরণ, অ্যাডমিন রোল প্রটেকশন (`input: false`) এবং Next.js App Router API রুট ইন্টিগ্রেশন।
+
+### 🧠 আর্কিটেকচারাল সমাধান ও টিম-টপার কনসেপ্টস:
+1. **Drizzle Adapter & Auth Tables (`src/lib/db/schema.ts`):**
+   - Better Auth-এর সাথে সম্পূর্ণ সামঞ্জস্য রেখে তৈরি করা হয়েছে:
+     - `users`: ইউজার কোর প্রোফাইল, ইমেইল ভেরিফিকেশন এবং `role` (`CUSTOMER` | `ADMIN`)।
+     - `sessions`: সিকিউর সেশন টোকেন, আইপি অ্যাড্রেস, ইউজার এজেন্ট এবং ৭ দিনের অটো-এক্সপায়ারি।
+     - `accounts`: পাসওয়ার্ড ক্রেডেনশিয়াল, হ্যাশিং এবং ফিউচার OAuth সাপোর্ট।
+     - `verifications`: ওটিপি, ইমেইল ভেরিফিকেশন এবং পাসওয়ার্ড রিসেট টোকেন।
+   - সব রিলেশনে `onDelete: "cascade"` ব্যবহার করা হয়েছে যাতে ইউজার মুছে গেলে সম্পর্কিত সেশন ও একাউন্ট ডেটাও স্বয়ংক্রিয়ভাবে ক্লিন হয়ে যায়।
+2. **Server-Side Security & RBAC Guard (`src/lib/auth.ts`):**
+   - **`role` ফিল্ডে `input: false`:** পাবলিক সাইনআপ API রিকোয়েস্টে কেউ যদি জেসনে `role: "ADMIN"` পাঠায়, Better Auth তা স্বয়ংক্রিয়ভাবে ফিল্টার করে ব্লক করে দেবে। অ্যাডমিন রোল শুধুমাত্র ডাটাবেজ অ্যাডমিন সরাসরি অ্যাসাইন করতে পারবে।
+3. **Next.js App Router API Handler (`src/app/api/auth/[...all]/route.ts`):**
+   - Better Auth-এর অল-ইন-ওয়ান হ্যান্ডলার যুক্ত করা হয়েছে, যা সম্পূর্ণ ডায়নামিক ও লাইটওয়েট।
+4. **React Client Hook Ready (`src/lib/auth-client.ts`):**
+   - ফ্রন্টএন্ডে ব্যবহারের জন্য `useSession()`, `signIn.email()`, `signUp.email()`, `signOut()` হুক প্রস্তুত।
+
+### 🧪 ভেরিফিকেশন রেজাল্ট:
+- `npx drizzle-kit push --force` ➔ **PASS** (`accounts`, `sessions`, `verifications` টেবিল PostgreSQL-এ তৈরি)
+- `npm run typecheck` ➔ **PASS** (০ টাইপ এরর)
+- `npm run build` ➔ **PASS** (`/api/auth/[...all]` সফলভাবে বিল্ড হয়েছে)
+
+### 📋 আপনার জন্য স্টেপ-বাই-স্টেপ চেকলিস্ট:
+1. pgAdmin-এ গিয়ে `nestora_db` ➔ `Schemas` ➔ `public` ➔ `Tables`-এ রিফ্রেশ দিলে দেখতে পাবেন ৭টি টেবিল তৈরি হয়ে গেছে।
+2. [src/lib/auth.ts](file:///c:/Users/shaki/Downloads/nestora%20e-commerce%20project/src/lib/auth.ts) এবং [src/lib/auth-client.ts](file:///c:/Users/shaki/Downloads/nestora%20e-commerce%20project/src/lib/auth-client.ts) ফাইলগুলো দেখে নিন।
+3. আপনার গিটহাবে তৃতীয় কমিটটি করতে পারেন:
+   ```bash
+   git add .
+   git commit -m "feat(auth): integrate Better Auth with Drizzle adapter, sessions and RBAC guards"
+   git push
+   ```
+
+---
+
 *(পরবর্তী দিনের লগগুলো এখানে পর্যায়ক্রমে যোগ হবে)*
