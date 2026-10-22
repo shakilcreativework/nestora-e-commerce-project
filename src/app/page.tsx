@@ -340,8 +340,8 @@ export default async function Home() {
           </Link>
         </div>
 
-        {/* Responsive Product Grid */}
-        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {/* Responsive Product Grid: 2 columns on mobile, sm, and md; 3 columns on lg; 4 columns on xl+ */}
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           {allProducts.map((product) => (
             <ProductCard
               key={product.id}
