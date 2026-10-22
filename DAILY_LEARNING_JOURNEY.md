@@ -429,4 +429,73 @@ Building with a strict human-in-the-loop review process and zero auto-pushes. Ex
 
 ---
 
+## 📐 Day 2 (Part 6): Strict Multi-Device Adaptive Responsive Design System (XS to 2XL)
+- **তারিখ:** ২২ অক্টোবর, ২০২৬
+- **স্ট্যাটাস:** Completed & Verified (Build Passed 100%)
+- **মূল লক্ষ্য:** `xs` (375px), `sm` (640px), `md` (768px), `lg` (1024px), `xl` (1280px) এবং `2xl` (1536px+) ডিভাইসের জন্য ফন্ট সাইজ, বাটন সাইজ, ব্যাজ, কন্টেইনার প্যাডিং ও গ্রিডের নিখুঁত অ্যাডাপ্টিভ স্কেলিং রুল তৈরি ও প্রয়োগ করা। কোনো উপাদানেই যেন স্ট্যাটিক বা অপরিবর্তনীয় ডিফল্ট সাইজ না থাকে।
+
+### 🧠 আর্কিটেকচারাল সমাধান ও টিম-টপার কনসেপ্টস:
+1. **Tailwind v4 Native `xs` Breakpoint (`src/app/globals.css`):**
+   - `@theme` ব্লকে `--breakpoint-xs: 375px;` কনফিগার করা হয়েছে।
+   - ফলে টেইলউইন্ড সিএসএস-এ `xs:` প্রিফিক্স এখন ফুললি নেটিভ ভ্যারিয়েন্ট হিসেবে কাজ করে (যেমন: `xs:text-sm`, `xs:p-3`, `xs:h-10`)।
+2. **Permanent System Rule (`.agents/rules/responsive-design-system.md`):**
+   - ভবিষ্যতে তৈরি হওয়া প্রতিটি কম্পোনেন্টের জন্য বাধ্যতামূলক রেসপনসিভ নিয়ম লিপিবদ্ধ করা হয়েছে:
+     - **হেডলাইন হাইরার্কি:** Hero Title (`text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl`), Section Title (`text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl`)।
+     - **বাটন ও টাচ টার্গেটস:** মোবাইলে মিনিমাম ৩৮-৪০px উচ্চতা সহ কম্প্যাক্ট প্যাডিং (`py-2 px-3 text-xs rounded-lg`) থেকে ডেস্কটপে লাক্সারি বাটন (`py-3.5 px-6 text-sm rounded-full`)।
+     - **ব্যাজ ও পিলস:** মোবাইলে মাইক্রো-ব্যাজ (`text-[8.5px] xs:text-[9.5px] px-1.5 xs:px-2 py-0.5`) যাতে কার্ডের জায়গা নষ্ট না হয়, ডেস্কটপে এলিগ্যান্ট ব্যাজ (`text-xs px-3 py-1.5 rounded-full`)।
+     - **কার্ড গ্রিড:** মোবাইল, `sm` ও `md`-এ ২ কলাম; `lg`-তে ৩ কলাম; `xl` ও `2xl`-এ ৪ কলাম।
+3. **Storefront Component Scaling:**
+   - [`src/components/products/product-card.tsx`](file:///c:/Users/shaki/Downloads/nestora%20e-commerce%20project/src/components/products/product-card.tsx) এবং [`src/app/page.tsx`](file:///c:/Users/shaki/Downloads/nestora%20e-commerce%20project/src/app/page.tsx)-এ সমস্ত হেডিং, ব্যাজ, কন্টেইনার প্যাডিং ও বাটন ক্লাসে পূর্ণাঙ্গ `xs` থেকে `2xl` স্কেলিং প্রয়োগ করা হয়েছে।
+
+### 🧪 ভেরিফিকেশন রেজাল্ট:
+- `npm run typecheck` ➔ **PASS** (০ টাইপ এরর)
+- `npm run build` ➔ **PASS** (০ এরর সহ সব রুট কম্পাইলড)
+- Live Localhost Test (`http://localhost:3000`): **HTTP 200 OK**
+
+### 📋 আপনার জন্য স্টেপ-বাই-স্টেপ চেকলিস্ট:
+1. ব্রাউজারে `http://localhost:3000` ওপেন করে যেকোনো ডিভাইসে (স্মল মোবাইল ৩৫৭px থেকে শুরু করে ফুল স্ক্রিন) ব্রাউজ করুন।
+2. দেখতে পাবেন প্রতিটি ডিভাইসের স্ক্রিন সাইজের সাথে ফন্ট, বাটন ও ব্যাজের সাইজ সম্পূর্ণ মানানসই হয়ে গেছে।
+3. ম্যানুয়ালি কমিট দিন:
+   ```bash
+   git add .
+   git commit -m "feat(ui): add strict multi-tier responsive design system rule and adaptive component scaling"
+   git push origin main
+   ```
+
+---
+
+## 🛡️ Day 2 (Part 7): Footer Newsletter Input & Button Flex Overflow Elimination
+- **তারিখ:** ২২ অক্টোবর, ২০২৬
+- **স্ট্যাটাস:** Completed & Verified (Build Passed 100%)
+- **মূল লক্ষ্য:** ল্যাপটপ/ডেস্কটপ (`lg`) এবং মাঝারি স্ক্রিনে ফুটারের নিউজলেটার ইনপুট ও জয়েন বাটন কন্টেইনারের বাইরে (go outside) উপচে পড়া সমস্যার সমাধান করা।
+
+### 🧠 আর্কিটেকচারাল সমাধান ও টিম-টপার কনসেপ্টস:
+1. **Asymmetric 12-Column Footer Grid (`src/app/page.tsx`):**
+   - পূর্বে `md:grid-cols-4` ব্যবহারের কারণে ৪টি সমান কলামে ভাগ হয়ে নিউজলেটার কলামটি মাত্র ~১৮০px জায়গা পেত, ফলে ইনপুট ও বাটন একসাথে আঁটতে না পেরে বাইরে চলে যেত।
+   - এটি সমাধান করে `grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-8 xl:gap-10` করা হয়েছে:
+     - **Brand Column:** `lg:col-span-4` (ব্র্যান্ড বর্ণনার জন্য পর্যাপ্ত স্পেস)
+     - **Collections:** `lg:col-span-2`
+     - **Customer Care:** `lg:col-span-2`
+     - **Newsletter:** `lg:col-span-4` (নিউজলেটার এখন ৩৫% জায়গা পায়—৩৫০px+ প্রশস্ত—ইনপুট ও বাটনের জন্য বিশাল ব্রিদিং রুম)।
+2. **Flexbox Child Width Constraint (`src/components/ui/newsletter-form.tsx`):**
+   - ব্রাউজারের ডিফল্ট আচরণে `<input>` এলিমেন্টের অন্তর্নিহিত উইডথ (intrinsic size) থাকে। ফ্লেক্স চাইল্ডে `min-w-0` না থাকলে এটি কখনোই কন্টেইনার অনুযায়ী সংকুচিত হতে পারে না।
+   - ইনপুটে `w-full min-w-0` এবং বাটনকে `shrink-0` হিসেবে সেট করা হয়েছে, যাতে যেকোনো সরু স্ক্রিনেও এটি কখনো কন্টেইনার ভেঙে বাইরে না যায়।
+
+### 🧪 ভেরিফিকেশন রেজাল্ট:
+- `npm run typecheck` ➔ **PASS** (০ টাইপ এরর)
+- `npm run build` ➔ **PASS** (০ এরর সহ সব রুট কম্পাইলড)
+- Live Localhost Test (`http://localhost:3000`): **HTTP 200 OK** (HTML ভেরিফাইড: `lg:grid-cols-12` ও `min-w-0` সক্রিয়)
+
+### 📋 আপনার জন্য স্টেপ-বাই-স্টেপ চেকলিস্ট:
+1. ব্রাউজারে `http://localhost:3000` রিফ্রেশ দিয়ে পেজের একদম নিচে ফুটার সেকশনে স্ক্রোল করুন।
+2. দেখতে পাবেন নিউজলেটার ইনপুট বক্স এবং **Join** বাটনটি এখন আর কলামের ডান পাশে বাইরে চলে যায় না, বরং সুন্দরভাবে কন্টেইনারের ভেতরে মানানসই হয়ে রয়েছে।
+3. ম্যানুয়ালি কমিট দিন:
+   ```bash
+   git add .
+   git commit -m "fix(footer): prevent newsletter input and button overflow using 12-column layout and min-w-0"
+   git push origin main
+   ```
+
+---
+
 *(পরবর্তী দিনের লগগুলো এখানে পর্যায়ক্রমে যোগ হবে)*

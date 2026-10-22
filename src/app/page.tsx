@@ -153,42 +153,42 @@ export default async function Home() {
 
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Column: Narrative & Action */}
-          <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#264E3A]/10 dark:bg-[#478466]/20 text-[#264E3A] dark:text-[#67B58E] border border-[#264E3A]/20 dark:border-[#478466]/30 shadow-xs">
+          <div className="lg:col-span-7 space-y-4 xs:space-y-5 sm:space-y-6">
+            <div className="inline-flex items-center gap-1.5 xs:gap-2 px-2.5 xs:px-3.5 py-1 xs:py-1.5 rounded-full text-[10px] xs:text-xs font-semibold bg-[#264E3A]/10 dark:bg-[#478466]/20 text-[#264E3A] dark:text-[#67B58E] border border-[#264E3A]/20 dark:border-[#478466]/30 shadow-xs">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>Autumn/Winter Small-Batch 04 • Single-Vendor Atelier</span>
             </div>
 
-            <h1 className="font-serif text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-[var(--foreground)] leading-[1.08]">
+            <h1 className="font-serif text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-[var(--foreground)] leading-[1.08]">
               Thoughtful living,{" "}
               <span className="italic font-normal text-[#264E3A] dark:text-[#67B58E]">
                 quietly refined.
               </span>
             </h1>
 
-            <p className="text-sm xs:text-base sm:text-lg md:text-xl text-[var(--muted-text)] font-sans leading-relaxed max-w-2xl">
+            <p className="text-xs xs:text-sm sm:text-base md:text-lg lg:text-xl text-[var(--muted-text)] font-sans leading-relaxed max-w-2xl">
               A deliberate collection of solid Japanese oak desk stands, ambient brass lamps, and
               hand-thrown stoneware. Engineered for spaces that prioritize ergonomic calm and deep focus.
             </p>
 
-            <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-2">
+            <div className="flex flex-wrap items-center gap-2.5 xs:gap-3 sm:gap-4 pt-1 xs:pt-2">
               <Link
                 href="/catalog"
-                className="inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-3 sm:py-3.5 rounded-full bg-[#264E3A] dark:bg-[#478466] text-white text-xs sm:text-sm font-semibold hover:opacity-90 active:scale-[0.99] transition-all shadow-md shadow-[#264E3A]/20"
+                className="inline-flex items-center justify-center gap-2 px-4 xs:px-6 sm:px-7 py-2.5 xs:py-3 sm:py-3.5 rounded-full bg-[#264E3A] dark:bg-[#478466] text-white text-xs sm:text-sm font-semibold hover:opacity-90 active:scale-[0.99] transition-all shadow-md shadow-[#264E3A]/20"
               >
                 <span>Explore Collection</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5 xs:w-4 xs:h-4" />
               </Link>
               <Link
                 href="/category/workspace"
-                className="inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-3 sm:py-3.5 rounded-full border border-stone-300 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-800 dark:text-stone-200 text-xs sm:text-sm font-medium transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-3.5 xs:px-5 sm:px-6 py-2.5 xs:py-3 sm:py-3.5 rounded-full border border-stone-300 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-800 dark:text-stone-200 text-xs sm:text-sm font-medium transition-colors"
               >
                 <span>Desk Architecture</span>
               </Link>
             </div>
 
             {/* Trust Metrics Strip */}
-            <div className="pt-4 border-t border-stone-200/60 dark:border-stone-800/60 flex flex-wrap items-center gap-y-3 gap-x-6 text-xs text-stone-500 dark:text-stone-400">
+            <div className="pt-3 xs:pt-4 border-t border-stone-200/60 dark:border-stone-800/60 flex flex-wrap items-center gap-y-2 xs:gap-y-3 gap-x-4 xs:gap-x-6 text-[10px] xs:text-xs text-stone-500 dark:text-stone-400">
               <div className="flex items-center gap-1.5">
                 <span className="text-[#B2834E] font-bold">★★★★★</span>
                 <span className="font-medium text-stone-700 dark:text-stone-300">4.9/5 Rating</span>
@@ -267,13 +267,13 @@ export default async function Home() {
       </section>
 
       {/* Category Grid Section */}
-      <section className="max-w-7xl mx-auto w-full px-4 xs:px-5 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:max-w-[1500px] py-10">
-        <div className="flex items-center justify-between mb-6 sm:mb-8">
+      <section className="max-w-7xl mx-auto w-full px-3 xs:px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:max-w-[1500px] py-8 xs:py-10 sm:py-12">
+        <div className="flex items-center justify-between mb-4 xs:mb-6 sm:mb-8">
           <div>
-            <span className="text-[10px] sm:text-xs font-mono uppercase tracking-widest text-[#B2834E]">
+            <span className="text-[9px] xs:text-[10px] sm:text-xs font-mono uppercase tracking-widest text-[#B2834E]">
               Explore by Category
             </span>
-            <h2 className="font-serif text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-[var(--foreground)] mt-1">
+            <h2 className="font-serif text-lg xs:text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-[var(--foreground)] mt-0.5 xs:mt-1">
               Curated Spaces
             </h2>
           </div>
@@ -286,12 +286,12 @@ export default async function Home() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 xs:gap-3 sm:gap-4 md:gap-6">
           {allCategories.map((cat) => (
             <Link
               key={cat.id}
               href={`/category/${cat.slug}`}
-              className="group relative h-48 sm:h-64 rounded-2xl overflow-hidden border border-stone-200/60 dark:border-stone-800/60 shadow-xs"
+              className="group relative h-36 xs:h-44 sm:h-56 md:h-64 rounded-xl sm:rounded-2xl overflow-hidden border border-stone-200/60 dark:border-stone-800/60 shadow-xs"
             >
               {cat.imageUrl && (
                 <Image
@@ -303,11 +303,11 @@ export default async function Home() {
                 />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-              <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 text-white">
-                <p className="text-[10px] font-mono uppercase tracking-wider text-stone-300">
+              <div className="absolute bottom-2.5 left-2.5 right-2.5 xs:bottom-3 xs:left-3 xs:right-3 sm:bottom-4 sm:left-4 sm:right-4 text-white">
+                <p className="text-[9px] xs:text-[10px] font-mono uppercase tracking-wider text-stone-300">
                   Collection
                 </p>
-                <h3 className="font-serif text-sm sm:text-lg font-bold tracking-tight mt-0.5 group-hover:translate-x-1 transition-transform">
+                <h3 className="font-serif text-xs xs:text-sm sm:text-base md:text-lg font-bold tracking-tight mt-0.5 group-hover:translate-x-1 transition-transform">
                   {cat.name}
                 </h3>
               </div>
@@ -317,26 +317,26 @@ export default async function Home() {
       </section>
 
       {/* Featured Products Section (Real Data from PostgreSQL) */}
-      <section className="max-w-7xl mx-auto w-full px-4 xs:px-5 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:max-w-[1500px] py-12 sm:py-16">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 sm:mb-10">
+      <section className="max-w-7xl mx-auto w-full px-3 xs:px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:max-w-[1500px] py-10 xs:py-12 sm:py-16">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 mb-6 xs:mb-8 sm:mb-10">
           <div>
-            <span className="text-[10px] sm:text-xs font-mono uppercase tracking-widest text-[#B2834E]">
+            <span className="text-[9px] xs:text-[10px] sm:text-xs font-mono uppercase tracking-widest text-[#B2834E]">
               Handcrafted Essentials
             </span>
-            <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-[var(--foreground)] mt-1">
+            <h2 className="font-serif text-xl xs:text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-[var(--foreground)] mt-0.5 xs:mt-1">
               Featured Collection
             </h2>
-            <p className="text-xs sm:text-sm text-[var(--muted-text)] mt-1.5 max-w-xl">
+            <p className="text-xs xs:text-sm text-[var(--muted-text)] mt-1 xs:mt-1.5 max-w-xl">
               Authentic pieces made from Japanese white oak, turned brass, and textured clay.
               Every item is verified and active in our database.
             </p>
           </div>
           <Link
             href="/catalog"
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#264E3A] dark:text-[#67B58E] hover:underline"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#264E3A] dark:text-[#67B58E] hover:underline shrink-0"
           >
             <span>Browse Complete Catalog</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </Link>
         </div>
 
@@ -418,11 +418,11 @@ export default async function Home() {
       </section>
 
       {/* E-Commerce Footer */}
-      <footer className="w-full bg-[var(--background)] border-t border-black/5 dark:border-white/10 pt-12 pb-8">
-        <div className="max-w-7xl mx-auto px-4 xs:px-5 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:max-w-[1500px]">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-black/5 dark:border-white/10">
+      <footer className="w-full bg-[var(--background)] border-t border-black/5 dark:border-white/10 pt-10 xs:pt-12 pb-8">
+        <div className="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:max-w-[1500px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-8 xl:gap-10 pb-10 border-b border-black/5 dark:border-white/10">
             {/* Brand column */}
-            <div className="space-y-3">
+            <div className="space-y-3 sm:col-span-2 lg:col-span-4 max-w-sm">
               <div className="flex items-center gap-2.5">
                 <div className="h-8 w-8 rounded-lg bg-[#264E3A] dark:bg-[#478466] flex items-center justify-center text-white font-serif font-bold text-base shadow-xs">
                   N
@@ -438,7 +438,7 @@ export default async function Home() {
             </div>
 
             {/* Collections */}
-            <div className="space-y-2.5">
+            <div className="space-y-2.5 sm:col-span-1 lg:col-span-2">
               <p className="text-xs font-bold uppercase tracking-wider text-[var(--foreground)]">
                 Collections
               </p>
@@ -467,7 +467,7 @@ export default async function Home() {
             </div>
 
             {/* Customer Care */}
-            <div className="space-y-2.5">
+            <div className="space-y-2.5 sm:col-span-1 lg:col-span-2">
               <p className="text-xs font-bold uppercase tracking-wider text-[var(--foreground)]">
                 Customer Care
               </p>
@@ -491,7 +491,7 @@ export default async function Home() {
             </div>
 
             {/* Newsletter */}
-            <div className="space-y-2.5">
+            <div className="space-y-2.5 sm:col-span-2 lg:col-span-4">
               <p className="text-xs font-bold uppercase tracking-wider text-[var(--foreground)]">
                 Newsletter
               </p>

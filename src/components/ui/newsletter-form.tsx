@@ -25,18 +25,20 @@ export function NewsletterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2">
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="name@example.com"
-        required
-        className="flex-1 px-3 py-2 text-xs rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-100/50 dark:bg-stone-900/50 text-[var(--foreground)] placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-[#264E3A]"
-      />
+    <form onSubmit={handleSubmit} className="flex items-center gap-2 w-full max-w-md">
+      <div className="relative flex-1 min-w-0">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="name@example.com"
+          required
+          className="w-full min-w-0 px-3 xs:px-3.5 py-2 xs:py-2.5 text-xs rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-100/50 dark:bg-stone-900/50 text-[var(--foreground)] placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-[#264E3A] transition-all"
+        />
+      </div>
       <button
         type="submit"
-        className="px-4 py-2 rounded-xl bg-[#264E3A] dark:bg-[#478466] text-white text-xs font-semibold hover:opacity-90 active:scale-95 transition-all shrink-0"
+        className="px-3.5 xs:px-4 py-2 xs:py-2.5 rounded-xl bg-[#264E3A] dark:bg-[#478466] text-white text-xs font-semibold hover:opacity-90 active:scale-95 transition-all shrink-0 shadow-xs"
       >
         Join
       </button>
