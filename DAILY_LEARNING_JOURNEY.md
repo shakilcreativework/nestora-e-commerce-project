@@ -835,6 +835,50 @@ Building with a strict human-in-the-loop review process and zero auto-pushes. Ex
 
 ---
 
+## ⚙️ Day 5 (Part 3): Admin Product Approval Catalog & Order Queue Fulfillment (NESTORA-060, 061, 064)
+- **তারিখ:** ২৩ অক্টোবর, ২০২৬
+- **স্ট্যাটাস:** Completed & Verified (Build Passed 100%)
+- **মূল লক্ষ্য:** অ্যাডমিনের জন্য সম্পূর্ণ প্রোডাক্ট ক্যাটালগ ও অ্যাপ্রুভাল ম্যানেজমেন্ট (`/admin/products`), লাইভ ট্রানজ্যাকশন সহ নতুন প্রোডাক্ট তৈরির মডাল, এবং কাস্টমার অর্ডার কিউ ও ডিসপ্যাচ স্ট্যাটাস ট্রানজিশন ড্যাশবোর্ড (`/admin/orders`) তৈরি করা।
+
+### 🧠 আর্কিটেকচারাল সমাধান ও টিম-টপার কনসেপ্টস:
+1. **Enforcing Storefront Integrity via Admin Approvals (`/admin/products`):**
+   - **One-Click Live Approval Toggle:** অ্যাডমিন যেকোনো পণ্যের পাশে "Approve / Pending" বাটনে ক্লিক করে লাইভ অনুমোদন বা স্থগিত করতে পারে।
+   - আন-অ্যাপ্রুভড পণ্য কখনোই পাবলিক স্টোরফ্রন্ট (`/`, `/shop`, `/category/[slug]`) বা ক্যাটালগে আসবে না।
+   - **Active vs Draft Toggle:** ক্যাটালগ সক্রিয়তা তৎক্ষণাৎ ডাটাবেজে আপডেট হয় এবং `revalidatePath()` এর মাধ্যমে ব্রাউজার ক্যাশ ইনস্ট্যান্ট রিফ্রেশ হয়।
+2. **Transactional Product Creation with Auto-Generated SKU:**
+   - অ্যাডমিন ড্যাশবোর্ডের "Add New Product" বাটন থেকে টাইটেল, ক্যাটাগরি, মূল্য, ইমেজ ইউআরএল ও প্রাথমিক স্টক দিয়ে নতুন পণ্য তৈরি করতে পারেন।
+   - `db.transaction()` ব্যবহার করে এক ক্লিকে ৩টি টেবিলে ডাটাবেজ এন্ট্রি হয়:
+     1. `products` টেবিলে ইউনিক স্লাগ ও এসকেইউ সহ পণ্য তৈরি হয়।
+     2. `product_images` টেবিলে প্রাইমারি ইমেজ যুক্ত হয়।
+     3. `product_variants` টেবিলে ইনভেন্টরি স্টক সেভ হয়।
+3. **Admin Order Queue & Status Transitions (`/admin/orders`):**
+   - কাস্টমারদের প্লেস করা সব অর্ডারের লাইভ কিউ রিয়েল-টাইমে প্রদর্শিত হয়।
+   - **Order Lifecycle Transitions:** অ্যাডমিন সরাসরি ড্রপডাউন থেকে অর্ডারের স্ট্যাটাস পরিবর্তন করতে পারে:
+     `CONFIRMED` ➔ `PROCESSING` ➔ `SHIPPED` ➔ `DELIVERED` (অথবা `CANCELLED`)।
+   - **Address Snapshot Modal:** "View" বাটনে ক্লিক করলে গ্রাহকের অর্ডারের মুহূর্তের শিপিং এড্রেস স্ন্যাপশট, ফোন নম্বর এবং মোট অর্থপ্রদানের রসিদ পপআপ হিসেবে ওপেন হয়।
+
+### 🧪 ভেরিফিকেশন রেজাল্ট:
+- `npm run typecheck` ➔ **PASS** (০ টাইপ এরর)
+- `npm run build` ➔ **PASS** (`/admin/products` এবং `/admin/orders` সফলভাবে কম্পাইলড)
+
+### 📋 আপনার জন্য স্টেপ-বাই-স্টেপ টেস্ট চেকলিস্ট:
+1. ব্রাউজারে [http://localhost:3000/admin/products](http://localhost:3000/admin/products) এ যান:
+   - সব পণ্যের তালিকা, বর্তমান ক্যাটাগরি, দাম, স্টক এবং অ্যাপ্রুভাল স্ট্যাটাস দেখতে পাবেন।
+   - যেকোনো পণ্যের পাশে **"Approved"** বাটনে ক্লিক করে দেখুন—মুহূর্তেই স্ট্যাটাস **"Pending"** হবে।
+   - "Add New Product" বাটনে ক্লিক করে একটি নতুন হস্তনির্মিত পণ্য পাবলিশ করুন!
+2. ব্রাউজারে [http://localhost:3000/admin/orders](http://localhost:3000/admin/orders) এ যান:
+   - চেকআউটে আপনার করা অর্ডারগুলো দেখতে পাবেন।
+   - "Order Status" ড্রপডাউন পরিবর্তন করে `PROCESSING` বা `SHIPPED` সিলেক্ট করুন।
+   - **"View"** বাটনে ক্লিক করে ডেলিভারি এড্রেস স্ন্যাপশট ও রসিদ প্রিভিউ করুন!
+3. পরিবর্তনগুলো সন্তোষজনক হলে গিটহাবে ম্যানুয়ালি পুশ করুন:
+   ```bash
+   git add .
+   git commit -m "feat(admin): implement product approval catalog, product creator, and order fulfillment transitions"
+   git push origin main
+   ```
+
+---
+
 *(পরবর্তী দিনের লগগুলো এখানে পর্যায়ক্রমে যোগ হবে)*
 
 

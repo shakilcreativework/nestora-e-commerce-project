@@ -115,16 +115,16 @@ approval and the manual Git outcome are recorded.
   NESTORA-055   Apply inventory changes         COMPLETED     NESTORA-054        Pass         Approved   Manual    db.transaction()
                 transactionally                                                                          started   
 
-  NESTORA-056   Build checkout UI and result    AWAITING_HUMAN_REVIEW NESTORA-051  Pass         Pending    Manual    /checkout & /success
+  NESTORA-056   Build checkout UI and result    COMPLETED     NESTORA-051  Pass         Approved   Pushed    Commit ee2f65f
                 pages                                         NESTORA-053                                started   
 
   NESTORA-057   Build customer order            NOT_STARTED   NESTORA-052,                    Pending    Not       
                 history/detail                                NESTORA-023                                started   
 
-  NESTORA-060   Build admin dashboard           NOT_STARTED   NESTORA-024                     Pending    Not       
+  NESTORA-060   Build admin dashboard           COMPLETED     NESTORA-024        Pass         Approved   Manual    Admin shell, sidebar,
                 shell/navigation                                                                         started   
 
-  NESTORA-061   Product and image management    NOT_STARTED   NESTORA-060,                    Pending    Not       
+  NESTORA-061   Product and image management    AWAITING_HUMAN_REVIEW NESTORA-060  Pass         Pending    Manual    /admin/products
                                                               NESTORA-022                                started   
 
   NESTORA-062   Category and variant management NOT_STARTED   NESTORA-061                     Pending    Not       
@@ -133,7 +133,7 @@ approval and the manual Git outcome are recorded.
   NESTORA-063   Inventory adjustment and audit  NOT_STARTED   NESTORA-061,                    Pending    Not       
                 history                                       NESTORA-022                                started   
 
-  NESTORA-064   Order queue and status          NOT_STARTED   NESTORA-057,                    Pending    Not       
+  NESTORA-064   Order queue and status          AWAITING_HUMAN_REVIEW NESTORA-057  Pass         Pending    Manual    /admin/orders status
                 transitions                                   NESTORA-060                                started   
 
   NESTORA-065   Coupon management and           NOT_STARTED   NESTORA-051,                    Pending    Not       
