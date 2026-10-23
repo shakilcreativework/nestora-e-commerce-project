@@ -284,13 +284,14 @@ export function CartDrawer() {
               Taxes and tracked shipping calculated during secure checkout.
             </p>
 
-            <button
-              type="button"
+            <Link
+              href="/checkout"
+              onClick={() => dispatch(closeCart())}
               className="w-full py-3 px-4 rounded-xl font-semibold text-xs sm:text-sm bg-[#264E3A] hover:bg-[#1d3d2e] dark:bg-[#478466] dark:hover:bg-[#386b52] text-white flex items-center justify-center gap-2 transition-all shadow-md group"
             >
               <span>Proceed to Checkout</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-            </button>
+            </Link>
 
             {/* Trust Pill */}
             <div className="flex items-center justify-center gap-2 pt-1 text-[10px] sm:text-[11px] text-stone-500 dark:text-stone-400">

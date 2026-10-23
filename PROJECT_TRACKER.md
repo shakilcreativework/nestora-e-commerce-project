@@ -56,7 +56,7 @@ approval and the manual Git outcome are recorded.
   NESTORA-024   Enforce Customer/Admin          COMPLETED     NESTORA-023        Pass         Approved   Manual    Server guards &
                 authorization                                                                            started   
 
-  NESTORA-025   Build protected account/admin   AWAITING_HUMAN_REVIEW NESTORA-024  Pass         Pending    Manual    /account & /admin
+  NESTORA-025   Build protected account/admin   COMPLETED     NESTORA-024        Pass         Approved   Pushed    Commit 2092414
                 layouts                                                                                  started   
 
   NESTORA-030   Approve design direction and    NOT_STARTED   NESTORA-012,                    Pending    Not       Human visual
@@ -97,13 +97,13 @@ approval and the manual Git outcome are recorded.
   NESTORA-044   Implement profile and saved     NOT_STARTED   NESTORA-023,                    Pending    Not       
                 addresses                                     NESTORA-022                                started   
 
-  NESTORA-050   Specify shipping/currency       NOT_STARTED   NESTORA-000                     Pending    Not       
+  NESTORA-050   Specify shipping/currency       COMPLETED     NESTORA-000        Pass         Approved   Manual    Free over $150, USD
                 assumptions                                                                              started   
 
-  NESTORA-051   Server-authoritative checkout   NOT_STARTED   NESTORA-041,                    Pending    Not       High risk
+  NESTORA-051   Server-authoritative checkout   COMPLETED     NESTORA-041,       Pass         Approved   Manual    calculateCheckout()
                 calculation                                   NESTORA-050                                started   
 
-  NESTORA-052   Create order and immutable      NOT_STARTED   NESTORA-051,                    Pending    Not       High risk
+  NESTORA-052   Create order and immutable      COMPLETED     NESTORA-051,       Pass         Approved   Manual    Transactional snapshots
                 snapshots                                     NESTORA-022                                started   
 
   NESTORA-053   Isolated test/mock payment      NOT_STARTED   NESTORA-052                     Pending    Not       High risk
@@ -112,10 +112,10 @@ approval and the manual Git outcome are recorded.
   NESTORA-054   Verify payment events and       NOT_STARTED   NESTORA-053                     Pending    Not       High risk
                 idempotency                                                                              started   
 
-  NESTORA-055   Apply inventory changes         NOT_STARTED   NESTORA-054                     Pending    Not       High risk
+  NESTORA-055   Apply inventory changes         COMPLETED     NESTORA-054        Pass         Approved   Manual    db.transaction()
                 transactionally                                                                          started   
 
-  NESTORA-056   Build checkout UI and result    NOT_STARTED   NESTORA-051,                    Pending    Not       
+  NESTORA-056   Build checkout UI and result    AWAITING_HUMAN_REVIEW NESTORA-051  Pass         Pending    Manual    /checkout & /success
                 pages                                         NESTORA-053                                started   
 
   NESTORA-057   Build customer order            NOT_STARTED   NESTORA-052,                    Pending    Not       
