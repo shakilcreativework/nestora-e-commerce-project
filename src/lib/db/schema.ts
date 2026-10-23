@@ -25,6 +25,13 @@ export const orderStatusEnum = pgEnum("order_status", [
 export const paymentStatusEnum = pgEnum("payment_status", ["UNPAID", "PAID", "FAILED", "REFUNDED"]);
 export const reviewStatusEnum = pgEnum("review_status", ["PENDING", "APPROVED", "REJECTED"]);
 export const discountTypeEnum = pgEnum("discount_type", ["PERCENTAGE", "FIXED"]);
+export const inventoryAdjustmentReasonEnum = pgEnum("inventory_adjustment_reason", [
+  "RESTOCK",
+  "DAMAGED",
+  "AUDIT_RECONCILIATION",
+  "CUSTOMER_RETURN",
+  "CORRECTION",
+]);
 
 // Users (Better Auth Compatible with Roles)
 export const users = pgTable("users", {
@@ -207,3 +214,38 @@ export const coupons = pgTable("coupons", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+// Product Reviews & Ratings (NESTORA-066)
+export const reviews = pgTable("reviews", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  productId: uuid("product_id")
+    .references(() => products.id, { onDelete: "cascade" })
+    .notNull(),
+  userId: text("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  rating: integer("rating").notNull(), // 1 to 5
+  title: text("title").notNull(),
+  comment: text("comment").notNull(),
+  isVerifiedPurchase: boolean("is_verified_purchase").default(false).notNull(),
+  status: reviewStatusEnum("status").default("PENDING").notNull(),
+  adminNote: text("admin_note"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Inventory Audit Logs (NESTORA-063)
+export const inventoryAuditLogs = pgTable("inventory_audit_logs", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  variantId: uuid("variant_id")
+    .references(() => productVariants.id, { onDelete: "cascade" })
+    .notNull(),
+  previousQuantity: integer("previous_quantity").notNull(),
+  newQuantity: integer("new_quantity").notNull(),
+  changeAmount: integer("change_amount").notNull(),
+  reason: inventoryAdjustmentReasonEnum("reason").notNull(),
+  note: text("note"),
+  performedBy: text("performed_by").default("Admin").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+

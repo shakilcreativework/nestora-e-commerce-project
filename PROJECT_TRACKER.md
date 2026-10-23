@@ -130,8 +130,8 @@ approval and the manual Git outcome are recorded.
   NESTORA-062   Category and variant management COMPLETED     NESTORA-061        Pass         Approved   Awaiting  /admin/categories CRUD,
                                                                                                           Review    active toggle, modal
 
-  NESTORA-063   Inventory adjustment and audit  NOT_STARTED   NESTORA-061,                    Pending    Not       
-                history                                       NESTORA-022                                started   
+  NESTORA-063   Inventory adjustment and audit  COMPLETED     NESTORA-061,       Pass         Approved   Awaiting  /admin/inventory live stock,
+                history                                       NESTORA-022                                 Review    audit trail, zero-wrap cards
 
   NESTORA-064   Order queue and status          COMPLETED     NESTORA-057  Pass         Approved   Pushed    Commit 36c4753
                 transitions                                   NESTORA-060                                started   
@@ -139,8 +139,8 @@ approval and the manual Git outcome are recorded.
   NESTORA-065   Coupon management and           COMPLETED     NESTORA-051,        Pass         Approved   Awaiting  Checkout promo code engine,
                 validation                                    NESTORA-060                                 Review    /admin/coupons CRUD, zero-wrap
 
-  NESTORA-066   Review submission and           NOT_STARTED   NESTORA-036,                    Pending    Not       
-                moderation                                    NESTORA-060                                started   
+  NESTORA-066   Review submission and           COMPLETED     NESTORA-036,        Pass         Approved   Awaiting  Customer reviews on PDP,
+                moderation                                    NESTORA-060                                 Review    /admin/reviews queue, zero-wrap
 
   NESTORA-067   Admin dashboard summary metrics COMPLETED     NESTORA-061,       Pass         Approved   Awaiting  Live telemetry KPIs,
                                                               NESTORA-064                                 Review    clickable stat routing

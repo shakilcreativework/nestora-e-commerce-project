@@ -8,7 +8,10 @@ import { eq, and, ne } from "drizzle-orm";
 import { StorefrontHeader } from "@/components/navigation/storefront-header";
 import { StorefrontFooter } from "@/components/navigation/storefront-footer";
 import { ProductDetailView } from "@/components/products/product-detail-view";
+import { ProductReviews } from "@/components/products/product-reviews";
 import { ProductCard } from "@/components/products/product-card";
+import { getProductReviews } from "@/lib/actions/reviews";
+import { getCurrentUser } from "@/lib/auth-guard";
 import { Sparkles, ArrowRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -137,6 +140,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     relatedImageMap.set(img.productId, img.url);
   }
 
+  // 4. Fetch live approved customer reviews & current session
+  const reviewSummary = await getProductReviews(product.id);
+  const currentUser = await getCurrentUser();
+
   return (
     <main className="min-h-screen w-full overflow-x-hidden flex flex-col justify-between selection:bg-[#264E3A] selection:text-white dark:selection:bg-[#478466]">
       {/* Top Banner */}
@@ -156,8 +163,20 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           product={{
             ...product,
             stockQuantity: totalStock,
+            rating: reviewSummary.averageRating,
+            reviewCount: reviewSummary.totalReviews,
           }}
           images={images}
+        />
+      </section>
+
+      {/* Customer Reviews & Community Feedback Section (NESTORA-066) */}
+      <section className="py-8 sm:py-12 border-t border-black/5 dark:border-white/10 px-3 xs:px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:max-w-[1500px] mx-auto w-full">
+        <ProductReviews
+          productId={product.id}
+          productName={product.name}
+          reviewSummary={reviewSummary}
+          isLoggedIn={!!currentUser}
         />
       </section>
 

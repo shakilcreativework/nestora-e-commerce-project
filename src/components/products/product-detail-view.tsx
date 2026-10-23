@@ -16,6 +16,7 @@ import {
   Share2,
   ChevronRight,
   Info,
+  Star,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { addToCart } from "@/lib/store/features/cart-slice";
@@ -36,6 +37,8 @@ export interface ProductDetailProps {
     categoryName?: string | null;
     categorySlug?: string | null;
     stockQuantity?: number;
+    rating?: number;
+    reviewCount?: number;
   };
   images: Array<{
     id: string;
@@ -245,6 +248,26 @@ export function ProductDetailView({ product, images }: ProductDetailProps) {
             <h1 className="font-serif text-2xl xs:text-3xl sm:text-4xl font-bold tracking-tight text-[var(--foreground)] leading-tight">
               {product.name}
             </h1>
+
+            {/* Star Rating Summary */}
+            <div className="flex items-center gap-2 text-xs pt-0.5">
+              <div className="flex items-center gap-0.5 text-amber-500">
+                {Array.from({ length: 5 }).map((_, idx) => (
+                  <Star
+                    key={idx}
+                    className={`w-3.5 h-3.5 ${
+                      idx < Math.round(product.rating || 5)
+                        ? "fill-amber-500"
+                        : "text-muted-foreground/30"
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="font-bold text-[var(--foreground)]">{product.rating || "5.0"}</span>
+              <span className="text-[var(--muted-text)]">
+                ({product.reviewCount ?? 0} {product.reviewCount === 1 ? "review" : "reviews"})
+              </span>
+            </div>
 
             {/* Short Narrative */}
             <p className="text-xs sm:text-sm text-[var(--muted-text)] leading-relaxed">

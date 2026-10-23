@@ -984,7 +984,108 @@ Building with a strict human-in-the-loop review process and zero auto-pushes. Ex
 
 ---
 
+## ⭐ Day 5 (Part 6): Product Reviews, Verified Buyer Verification & Editorial Moderation (NESTORA-066)
+- **তারিখ:** ২৩ অক্টোবর, ২০২৬
+- **স্ট্যাটাস:** Completed & Verified (Build Passed 100%, Zero Text-Wrapping Standard Enforced)
+- **মূল লক্ষ্য:** 
+  1. ডাটাবেজে `reviews` টেবিল তৈরি ও রিলেশনাল ইন্টিগ্রিটি যুক্ত করা (`products.id`, `users.id`)।
+  2. কাস্টমারদের জন্য প্রোডাক্ট ডিটেইল পেজে (`/product/[slug]`) ইন্টারঅ্যাক্টিভ স্টার রেটিং সামারি, ৫-স্টার ডিস্ট্রিবিউশন বার, রিভিউ লিস্ট ও রিভিউ সাবমিশন মডাল।
+  3. স্বয়ংক্রিয় ভেরিফাইড পারচেজ ভেরিফিকেশন (`is_verified_purchase`)—গ্রাহক পূর্বে এই পণ্যটি অর্ডার করেছিলেন কি না তা ডাটাবেজ থেকে স্বয়ংক্রিয়ভাবে যাচাই করা।
+  4. সম্পাদকীয় নীতি অনুযায়ী অ্যাডমিন মডারেশন কিউ (`/admin/reviews`)—জিরো-র‍্যাপ টেবিল ও মোবাইল কার্ড লেআউট, ১-ক্লিকে অ্যাপ্রুভ/রিজেক্ট অপশন।
+
+### 🧠 আর্কিটেকচারাল সমাধান ও টিম-টপার কনসেপ্টস:
+1. **Curated Editorial Moderation Architecture:**
+   - কোনো সাধারণ বা স্প্যাম রিভিউ সরাসরি ওয়েবসাইটে লাইভ হতে পারবে না। গ্রাহক রিভিউ সাবমিট করার সাথে সাথে তা `status: "PENDING"` অবস্থায় জমা হয়।
+   - অ্যাডমিন ড্যাশবোর্ড থেকে রিভিউটি দেখে **"Approve"** বাটনে ক্লিক করলে তা তৎক্ষণাৎ পাবলিক স্টোরফ্রন্ট ও প্রোডাক্ট ডিটেইল পেজে প্রদর্শিত হয়।
+2. **Automated Verified Buyer Verification (`src/lib/actions/reviews.ts`):**
+   - রিভিউ সাবমিশনের সময় সিস্টেম ডাটাবেজের `orders` এবং `order_items` টেবিলে চেক করে ইউজার এই পণ্যটি পূর্বে ক্রয় করেছেন কি না।
+   - ক্রয় নিশ্চিত হলে রিভিউতে স্বয়ংক্রিয়ভাবে একটি চমৎকার গ্রিন **"Verified Purchase"** শিল্ড ব্যাজ যুক্ত হয়।
+3. **Rich Rating Analytics on Product Detail Page (`src/components/products/product-reviews.tsx`):**
+   - বড় গড় রেটিং স্কোর (যেমন: ৪.৯ / ৫.০)।
+   - ৫★, ৪★, ৩★, ২★, ১★ রেটিং ডিস্ট্রিবিউশন প্রোগ্রেস বার।
+   - স্টার রেটিং দিয়ে ফিল্টার করার সুবিধা (যেমন: শুধু ৫★ রিভিউ দেখা)।
+   - ইন্টারঅ্যাক্টিভ স্টার হোভার পিকার সহ "Write a Review" মডাল।
+4. **Admin Review Moderation Hub (`/admin/reviews`):**
+   - **Zero Text-Wrapping Rule:** টেবিল যাতে কোনো ডিভাইসে ভেঙে না যায় সেজন্য `min-w-[850px]` এবং প্রতিটি সেলে `whitespace-nowrap` সুনিশ্চিত করা হয়েছে।
+   - **Mobile Stacked Cards (`md:hidden`):** মোবাইলের জন্য প্রিমিয়াম স্ট্যাকড রিভিউ কার্ড।
+   - ১-ক্লিকে অ্যাপ্রুভ বা রিজেক্ট করার সাথে সাথে অপটিমিস্টিক স্টেট আপডেট এবং প্রোডাক্ট পেজ ক্যাশ ইনস্ট্যান্ট রিভ্যালিডেশন।
+
+### 🧪 ভেরিফিকেশন রেজাল্ট:
+- `npm run typecheck` ➔ **PASS** (০ টাইপ এরর)
+- `npm run build` ➔ **PASS** (`/admin/reviews` ও `/product/[slug]` সহ সকল ডাইনামিক রুট সফলভাবে কম্পাইলড)
+
+### 📋 আপনার জন্য স্টেপ-বাই-স্টেপ টেস্ট চেকলিস্ট:
+1. **প্রোডাক্ট রিভিউ ও রেটিং টেস্ট:**
+   - ব্রাউজারে যেকোনো প্রোডাক্ট পেজে যান (যেমন: [http://localhost:3000/shop](http://localhost:3000/shop) থেকে কোনো প্রোডাক্ট ওপেন করুন)।
+   - টাইটেলের নিচে রেটিং স্টার এবং রিভিউ সংখ্যা দেখতে পাবেন।
+   - পেজের নিচে স্ক্রোল করুন—দেখবেন চমৎকার রেটিং ডিস্ট্রিবিউশন বার, ফিল্টার ও গ্রাহকদের রিভিউ।
+   - **"Write a Review"** বাটনে ক্লিক করে স্টার রেটিং ও মন্তব্য লিখে সাবমিট করুন!
+2. **অ্যাডমিন রিভিউ মডারেশন টেস্ট:**
+   - ব্রাউজারে [http://localhost:3000/admin/reviews](http://localhost:3000/admin/reviews) এ যান।
+   - সমস্ত রিভিউ, স্টার রেটিং, প্রোডাক্টের নাম, ভেরিফাইড বায়ার ব্যাজ এবং স্ট্যাটাস দেখতে পাবেন।
+   - "Pending" রিভিউটির পাশে থাকা **"Approve"** বাটনে ক্লিক করে দেখুন—সাথে সাথে স্ট্যাটাস **"Approved"** হয়ে যাবে এবং প্রোডাক্ট পেজে লাইভ প্রদর্শিত হবে!
+3. পরিবর্তনগুলো সন্তোষজনক হলে গিটহাবে ম্যানুয়ালি পুশ করুন:
+   ```bash
+   git add .
+   git commit -m "feat(reviews): implement product reviews, verified buyer verification, and admin moderation queue"
+   git push origin main
+   ```
+
+---
+
+## 📦 Day 5 (Part 7): Enterprise Inventory Adjustment & Audit Trail History (NESTORA-063)
+- **তারিখ:** ২৩ অক্টোবর, ২০২৬
+- **স্ট্যাটাস:** Completed & Verified (Build Passed 100%, Zero Text-Wrapping Standard Enforced)
+- **মূল লক্ষ্য:** 
+  1. ডাটাবেজে `inventory_audit_logs` টেবিল ও `inventory_adjustment_reason` এনাম তৈরি করা।
+  2. রিয়েল-টাইম SKU ইনভেন্টরি ট্র্যাকিং, স্টক লেভেল স্বাস্থ্য নির্দেশক (Healthy > 10, Low Stock 1-10, Out of Stock 0)।
+  3. সার্ভার-অথরিটেটিভ ট্রানজেকশনাল স্টক অ্যাডজাস্টমেন্ট (`db.transaction`)—স্টক ইনটেক/রিস্টক (+), ড্যামেজ/ক্ষতি (-), অডিট গণনা সমন্বয় ও কাস্টমার রিটার্ন সাপোর্ট।
+  4. অ্যাডমিনের জন্য ডেডিকেটেড ইনভেন্টরি ম্যানেজমেন্ট হাব (`/admin/inventory`)—জিরো-র‍্যাপ ডাটা টেবিল, ফিল্টার ট্যাব, ইনস্ট্যান্ট সার্চ, লাইভ ট্রানজিশন প্রিভিউ সহ স্টক অ্যাডজাস্ট মডাল এবং পূর্ণাঙ্গ অডিট ট্রেইল হিস্ট্রি।
+
+### 🧠 আর্কিটেকচারাল সমাধান ও টিম-টপার কনসেপ্টস:
+1. **Immutable Audit Trail Architecture (`src/lib/db/schema.ts`):**
+   - কোনো প্রোডাক্টের স্টক পরিবর্তন হলে শুধুমাত্র সংখ্যা পরিবর্তন হয় না—কার দ্বারা, কোন তারিখে, পূর্বের স্টক কত ছিল, নতুন স্টক কত হলো, পরিবর্তনের কারণ কী (Restock, Damaged, Audit Reconciliation ইত্যাদি) এবং রেফারেন্স নোট সহ প্রতিটি ঘটনা `inventory_audit_logs` টেবিলে অপরিবর্তনীয়ভাবে সংরক্ষিত হয়।
+2. **Server-Authoritative Transactional Stock Updates (`src/lib/actions/inventory.ts`):**
+   - `db.transaction()` ব্যবহার করে স্টক পরিবর্তন নিশ্চিত করা হয়েছে যাতে কোনো রেস কন্ডিশন তৈরি না হয় এবং স্টক নেগেটিভ হওয়ার সুযোগ না থাকে।
+   - স্টক আপডেট হওয়ার সাথে সাথে ইনভেন্টরি ড্যাশবোর্ড, প্রোডাক্ট ক্যাটালগ ও স্টোরফ্রন্ট ক্যাশ ইনস্ট্যান্ট রিভ্যালিডেট হয়।
+3. **Telemetry & Warehouse Health KPI Cards (`src/components/admin/inventory-view.tsx`):**
+   - **Tracked SKUs:** মোট সক্রিয় ভ্যারিয়েন্টের সংখ্যা।
+   - **Total Units:** ওয়্যারহাউসে থাকা মোট স্টকের সামগ্রিক যোগফল।
+   - **Low Stock Alerts:** ১০ বা তার কম ইউনিট থাকা পণ্যের সংখ্যা (অ্যাম্বার কালার পালস ব্যাজ)।
+   - **Out of Stock:** শূন্য স্টক থাকা পণ্যের সংকট সতর্কতা (রেড ডেঞ্জার ব্যাজ)।
+4. **Zero Text-Wrapping Standard & Responsive Mobile Cards (`src/components/admin/inventory-table.tsx`):**
+   - **Zero Text-Wrapping Rule:** `min-w-[850px]` কন্টেইনার এবং প্রতিটি সেলে `whitespace-nowrap` সুনিশ্চিত করা হয়েছে যাতে কোনো টেবিল সেল ভেঙে না যায়।
+   - **Dedicated Mobile Layout (`md:hidden`):** ছোট স্ক্রিনের জন্য স্ট্যাকড কার্ড লেআউট তৈরি করা হয়েছে, যাতে থাম্বনেইল, দাম, ক্যাটাগরি ও স্টক লেভেল পরিপাটিভাবে প্রদর্শিত হয়।
+5. **Interactive Quick Stock Adjustment Modal (`src/components/admin/inventory-adjust-modal.tsx`):**
+   - ৩টি মোড: **Add Stock (+)**, **Deduct Stock (-)**, এবং **Exact Count (=)**।
+   - লাইভ ট্রানজিশন ফোরকাস্ট ব্যাজ: `Current: 12` ➔ `New: 20 (+8 units)`।
+
+### 🧪 ভেরিফিকেশন রেজাল্ট:
+- `npx drizzle-kit push --force` ➔ **PASS** (`inventory_audit_logs` টেবিল ও এনাম তৈরি)
+- `npm run typecheck` ➔ **PASS** (০ টাইপ এরর)
+- `npm run build` ➔ **PASS** (`/admin/inventory` সহ সমস্ত রুট ১০০% সফলভাবে বিল্ড হয়েছে)
+
+### 📋 আপনার জন্য স্টেপ-বাই-স্টেপ টেস্ট চেকলিস্ট:
+1. **অ্যাডমিন ইনভেন্টরি টেস্ট:**
+   - ব্রাউজারে [http://localhost:3000/admin/inventory](http://localhost:3000/admin/inventory) এ যান।
+   - অ্যাডমিন সাইডবারে নতুন **"Inventory"** অপশন দেখতে পাবেন।
+   - পেজের শীর্ষে লাইভ ৪টি KPI কার্ড (Tracked SKUs, Total Units, Low Stock Alerts, Out of Stock) দেখতে পাবেন।
+2. **স্টক অ্যাডজাস্টমেন্ট ও রিয়েলটাইম অডিট ট্রেইল টেস্ট:**
+   - যেকোনো প্রোডাক্টের ডানপাশে থাকা **"Adjust Stock"** বাটনে ক্লিক করুন।
+   - প্রিমিয়াম মডাল ওপেন হবে। পরিমাণ বৃদ্ধি বা হ্রাস করে "Restock" অথবা "Physical Audit" সিলেক্ট করে কনফার্ম করুন।
+   - সাথে সাথে টেবিলে স্টক আপডেট হয়ে যাবে এবং হেলথ ব্যাজের কালার পরিবর্তিত হবে।
+   - ওপরের **"Audit Trail"** ট্যাবে সুইচ করুন—দেখুন আপনার করা অ্যাডজাস্টমেন্টের পুরো হিস্ট্রি (আগের স্টক, নতুন স্টক, পরিবর্তনের পরিমাণ, কারণ এবং সময়) তালিকাভুক্ত হয়ে গেছে!
+3. পরিবর্তনগুলো সন্তোষজনক হলে গিটহাবে ম্যানুয়ালি পুশ করুন:
+   ```bash
+   git add .
+   git commit -m "feat(inventory): implement stock adjustment engine, telemetry KPIs, and immutable audit history"
+   git push origin main
+   ```
+
+---
+
 *(পরবর্তী দিনের লগগুলো এখানে পর্যায়ক্রমে যোগ হবে)*
+
 
 
 

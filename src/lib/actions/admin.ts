@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { products, productImages, productVariants, categories, orders, coupons } from "@/lib/db/schema";
+import { products, productImages, productVariants, categories, orders, coupons, reviews } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { requireAdmin } from "@/lib/auth-guard";
 import { revalidatePath } from "next/cache";
@@ -426,5 +426,63 @@ export async function deleteCoupon(couponId: string) {
     return { success: false, error: "Failed to delete coupon" };
   }
 }
+
+// 8. Review Moderation Actions (NESTORA-066)
+export async function moderateReview(
+  reviewId: string,
+  newStatus: "APPROVED" | "REJECTED",
+  adminNote?: string
+) {
+  await requireAdmin("/admin/reviews");
+
+  try {
+    const [updatedReview] = await db
+      .update(reviews)
+      .set({
+        status: newStatus,
+        adminNote: adminNote?.trim() || null,
+        updatedAt: new Date(),
+      })
+      .where(eq(reviews.id, reviewId))
+      .returning({ productId: reviews.productId });
+
+    if (updatedReview) {
+      const [product] = await db
+        .select({ slug: products.slug })
+        .from(products)
+        .where(eq(products.id, updatedReview.productId))
+        .limit(1);
+
+      if (product) {
+        revalidatePath(`/product/${product.slug}`);
+      }
+    }
+
+    revalidatePath("/admin/reviews");
+    revalidatePath("/admin");
+
+    return { success: true, status: newStatus };
+  } catch (err: unknown) {
+    console.error("Error moderating review:", err);
+    return { success: false, error: "Failed to update review status" };
+  }
+}
+
+export async function deleteReview(reviewId: string) {
+  await requireAdmin("/admin/reviews");
+
+  try {
+    await db.delete(reviews).where(eq(reviews.id, reviewId));
+
+    revalidatePath("/admin/reviews");
+    revalidatePath("/admin");
+
+    return { success: true };
+  } catch (err: unknown) {
+    console.error("Error deleting review:", err);
+    return { success: false, error: "Failed to delete review" };
+  }
+}
+
 
 
