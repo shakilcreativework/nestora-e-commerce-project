@@ -4,8 +4,9 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Heart, ShoppingBag, Check } from "lucide-react";
-import { useAppDispatch } from "@/lib/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { addToCart } from "@/lib/store/features/cart-slice";
+import { toggleWishlist, selectIsInWishlist } from "@/lib/store/features/wishlist-slice";
 
 export interface ProductCardProps {
   id: string;
@@ -31,7 +32,7 @@ export function ProductCard({
   isFeatured,
 }: ProductCardProps) {
   const dispatch = useAppDispatch();
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const isWishlisted = useAppSelector(selectIsInWishlist(id));
   const [isAdded, setIsAdded] = useState(false);
 
   // Format currency
@@ -73,7 +74,18 @@ export function ProductCard({
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
-    setIsWishlisted(!isWishlisted);
+    dispatch(
+      toggleWishlist({
+        id,
+        name,
+        slug,
+        price,
+        compareAtPrice,
+        currency,
+        imageUrl,
+        categoryName,
+      })
+    );
   };
 
   return (

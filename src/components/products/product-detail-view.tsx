@@ -17,8 +17,9 @@ import {
   ChevronRight,
   Info,
 } from "lucide-react";
-import { useAppDispatch } from "@/lib/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
 import { addToCart } from "@/lib/store/features/cart-slice";
+import { toggleWishlist, selectIsInWishlist } from "@/lib/store/features/wishlist-slice";
 
 export interface ProductDetailProps {
   product: {
@@ -46,9 +47,9 @@ export interface ProductDetailProps {
 
 export function ProductDetailView({ product, images }: ProductDetailProps) {
   const dispatch = useAppDispatch();
+  const isWishlisted = useAppSelector(selectIsInWishlist(product.id));
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
   const [activeTab, setActiveTab] = useState<"details" | "craftsmanship" | "shipping">("details");
 
@@ -170,7 +171,20 @@ export function ProductDetailView({ product, images }: ProductDetailProps) {
             {/* Wishlist Button on Image */}
             <button
               type="button"
-              onClick={() => setIsWishlisted(!isWishlisted)}
+              onClick={() =>
+                dispatch(
+                  toggleWishlist({
+                    id: product.id,
+                    name: product.name,
+                    slug: product.slug,
+                    price: product.price,
+                    compareAtPrice: product.compareAtPrice,
+                    currency: product.currency,
+                    imageUrl: currentImage.url,
+                    categoryName: product.categoryName || undefined,
+                  })
+                )
+              }
               aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
               className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2.5 rounded-full bg-white/90 dark:bg-stone-900/90 text-[var(--foreground)] backdrop-blur-xs shadow-xs hover:scale-105 active:scale-95 transition-all"
             >

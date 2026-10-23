@@ -68,12 +68,12 @@ approval and the manual Git outcome are recorded.
   NESTORA-032   Build home page sections        NOT_STARTED   NESTORA-031                     Pending    Not       
                                                                                                          started   
 
-  NESTORA-033   Build shop/catalog page         AWAITING_HUMAN_REVIEW NESTORA-031,          Pass       Pending    Manual    /shop route +
-                                                              NESTORA-020                                review     push ready CatalogView
-  NESTORA-034   Add category navigation and     AWAITING_HUMAN_REVIEW NESTORA-033          Pass       Pending    Manual    /category/[slug]
-                category page                                                                            review     push ready + pills nav
-  NESTORA-035   Add                             AWAITING_HUMAN_REVIEW NESTORA-033          Pass       Pending    Manual    Client-side instant
-                search/filter/sort/pagination                                                            review     push ready filter & sort
+  NESTORA-033   Build shop/catalog page         COMPLETED     NESTORA-031,          Pass       Approved   Pushed    Commit 8e773df
+                                                              NESTORA-020                                (8e773df)  (Oct 23)  /shop route + CatalogView
+  NESTORA-034   Add category navigation and     COMPLETED     NESTORA-033          Pass       Approved   Pushed    Commit 8e773df
+                category page                                                                            (8e773df)  (Oct 23)  /category/[slug] + pills
+  NESTORA-035   Add                             COMPLETED     NESTORA-033          Pass       Approved   Pushed    Commit 8e773df
+                search/filter/sort/pagination                                                            (8e773df)  (Oct 23)  Instant search & sort
 
   NESTORA-036   Build product detail page       COMPLETED     NESTORA-031,          Pass       Approved   Pushed    Commit 1a6b0a8
                                                               NESTORA-022                                (1a6b0a8)  (Oct 23)  Dynamic PDP & gallery
@@ -82,17 +82,17 @@ approval and the manual Git outcome are recorded.
                                                               NESTORA-033,                               started   
                                                               NESTORA-036                                          
 
-  NESTORA-040   Define and implement cart state NOT_STARTED   NESTORA-036                     Pending    Not       
-                policy                                                                                   started   
+  NESTORA-040   Define and implement cart state COMPLETED     NESTORA-036          Pass       Approved   Pushed    Commit 1a6b0a8
+                policy                                                                                   (1a6b0a8)  (Oct 22)  Redux cart slice
 
-  NESTORA-041   Implement cart interactions     NOT_STARTED   NESTORA-040                     Pending    Not       
-                                                                                                         started   
+  NESTORA-041   Implement cart interactions     COMPLETED     NESTORA-040          Pass       Approved   Pushed    Commit 1a6b0a8
+                                                                                                          (1a6b0a8)  (Oct 22)  Cart drawer + stepper
 
   NESTORA-042   Implement guest-to-customer     NOT_STARTED   NESTORA-023,                    Pending    Not       
                 cart merge                                    NESTORA-041                                started   
 
-  NESTORA-043   Implement wishlist              NOT_STARTED   NESTORA-023,                    Pending    Not       
-                                                              NESTORA-022                                started   
+  NESTORA-043   Implement wishlist              AWAITING_HUMAN_REVIEW NESTORA-023,          Pass       Pending    Manual    Redux wishlist +
+                                                              NESTORA-022                                review     push ready /wishlist page
 
   NESTORA-044   Implement profile and saved     NOT_STARTED   NESTORA-023,                    Pending    Not       
                 addresses                                     NESTORA-022                                started   

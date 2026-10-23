@@ -671,6 +671,51 @@ Building with a strict human-in-the-loop review process and zero auto-pushes. Ex
 
 ---
 
+## 💖 Day 4 (Part 3): Full-Stack Wishlist Architecture & Dedicated Wishlist Page (NESTORA-043)
+- **তারিখ:** ২৩ অক্টোবর, ২০২৬
+- **স্ট্যাটাস:** Completed & Verified (Build Passed 100%)
+- **মূল লক্ষ্য:** Redux Toolkit সেন্ট্রালাইজড উইশলিস্ট স্টেট, LocalStorage পারসিসট্যান্স (`nestora_wishlist_v1`), হেডারে লাইভ উইশলিস্ট ব্যাজ কাউন্টার, প্রোডাক্ট কার্ড ও PDP হার্ট আইকন সিঙ্ক এবং ডেডিকেটেড উইশলিস্ট পেজ (`/wishlist`) তৈরি করা।
+
+### 🧠 আর্কিটেকচারাল সমাধান ও টিম-টপার কনসেপ্টস:
+1. **Centralized Redux Wishlist Slice (`src/lib/store/features/wishlist-slice.ts`):**
+   - কার্ট স্লাইসের মতো সম্পূর্ণ টাইপ-সেফ উইশলিস্ট স্টেট আর্কিটেকচার।
+   - `toggleWishlist` অ্যাকশন: কাস্টমার কার্ডে বা PDP-তে হার্ট আইকনে ক্লিক করলেই স্বয়ংক্রিয়ভাবে উইশলিস্টে যুক্ত হয় বা বাদ যায়।
+   - `selectIsInWishlist(id)` মেমোইজড সিলেক্টর: প্রতি প্রোডাক্টের জন্য ইনস্ট্যান্ট ও-অব-ওয়ান `O(1)` মেমোরি লুকআপ।
+2. **Robust LocalStorage Multi-State Persistence (`src/components/providers/redux-provider.tsx`):**
+   - ব্রাউজার রিলোড বা বন্ধ করলেও উইশলিস্টের কোনো ডাটা হারাবে না (`nestora_wishlist_v1`)।
+   - ক্লায়েন্ট মাউন্টে কার্ট এবং উইশলিস্ট উভয়ই কোনো হাইড্রেশন ফ্লিকার ছাড়া লোড হয়।
+3. **Reactive Header Badge with Bounce Animation (`src/components/navigation/wishlist-button.tsx`):**
+   - হেডারের হার্ট আইকনে আইটেম যোগ হওয়ার সাথে সাথে মাইক্রো-বাউন্স অ্যানিমেশন সহ লাইভ ব্যাজ কাউন্টার (যেমন: ❤️ `3`) জ্বলে ওঠে।
+4. **Dedicated Wishlist View (`src/components/wishlist/wishlist-view.tsx` & `/wishlist`):**
+   - **Move to Bag Action:** উইশলিস্টে থাকা যেকোনো পণ্য "Move to Bag" চাপলেই স্বয়ংক্রিয়ভাবে উইশলিস্ট থেকে কার্টে যুক্ত হয় এবং গ্লোবাল স্লাইড-ওভার **Cart Drawer** ওপেন হয়ে যায়।
+   - **Add All to Bag & Clear All:** এক ক্লিকে সব পণ্য কার্টে পাঠানোর সুবিধা।
+   - **Artisan Empty State:** বুকমার্কে কিছু না থাকলে এলিগ্যান্ট হার্ট ইলাস্ট্রেশন ও "Explore Atelier Collection" বাটন।
+   - **Responsive Standard:** মোবাইল ও ট্যাবলেটে ২-কলাম এবং ল্যাপটপ/ডেস্কটপে ৩ ও ৪-কলাম গ্রিড।
+
+### 🧪 ভেরিফিকেশন রেজাল্ট:
+- `npm run typecheck` ➔ **PASS** (০ টাইপ এরর)
+- `npm run build` ➔ **PASS** (নতুন রুট `/wishlist` সহ সম্পূর্ণ প্রোডাকশন বান্ডল কম্পাইলড)
+
+### 📋 আপনার জন্য স্টেপ-বাই-স্টেপ চেকলিস্ট:
+1. ব্রাউজারে `http://localhost:3000` এ যান।
+2. যেকোনো প্রোডাক্ট কার্ডের উপরের ডান কোণায় থাকা **Heart** আইকনে ক্লিক করুন:
+   - সাথে সাথে হার্ট আইকন লাল রঙে ফিল্ড হবে।
+   - হেডারের হার্ট আইকনের উপরে লাইভ ব্যাজ কাউন্টার (যেমন: `1`) বাউন্স করে ফুটে উঠবে!
+3. প্রোডাক্ট ডিটেইল পেজে ([/product/walnut-desk-organizer](http://localhost:3000/product/walnut-desk-organizer)) গিয়েও হার্ট বাটনে ক্লিক করে স্টেট সিঙ্ক পরীক্ষা করুন।
+4. হেডারের হার্ট আইকনে ক্লিক করে সরাসরি [http://localhost:3000/wishlist](http://localhost:3000/wishlist) পেজে যান:
+   - সেভ করা পণ্যগুলো দেখতে পাবেন।
+   - **"Move to Bag"** বাটনে ক্লিক করুন—পণ্যটি উইশলিস্ট থেকে কার্টে যোগ হয়ে ডান পাশ থেকে লাক্সারি **Cart Drawer** খুলে যাবে!
+5. পেজটি **F5** দিয়ে রিফ্রেশ করুন—উইশলিস্ট এবং কার্ট দুটোই অক্ষত থাকবে।
+6. পরিবর্তনগুলো সন্তোষজনক হলে গিটহাবে ম্যানুয়ালি পুশ করুন:
+   ```bash
+   git add .
+   git commit -m "feat(wishlist): implement full-stack Redux wishlist architecture, header badge, and dedicated wishlist page"
+   git push origin main
+   ```
+
+---
+
 *(পরবর্তী দিনের লগগুলো এখানে পর্যায়ক্রমে যোগ হবে)*
+
 
 

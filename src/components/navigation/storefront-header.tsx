@@ -5,6 +5,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { UserNav } from "@/components/navigation/user-nav";
 import { MobileMenu } from "@/components/navigation/mobile-menu";
 import { CartButton } from "@/components/navigation/cart-button";
+import { WishlistButton } from "@/components/navigation/wishlist-button";
 
 export function StorefrontHeader() {
   return (
@@ -49,14 +50,10 @@ export function StorefrontHeader() {
             <ThemeToggle />
           </div>
 
-          {/* Wishlist Button (Desktop only) */}
-          <Link
-            href="/wishlist"
-            aria-label="Wishlist"
-            className="hidden md:flex p-2 sm:p-2.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-[var(--foreground)] transition-colors relative"
-          >
-            <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--muted-text)] hover:text-red-500 transition-colors" />
-          </Link>
+          {/* Wishlist Button with live Redux count badge */}
+          <div className="hidden md:flex">
+            <WishlistButton />
+          </div>
 
           {/* Cart Button with live Redux count & slide-over drawer trigger */}
           <CartButton />
