@@ -3,10 +3,10 @@ import Link from "next/link";
 import { requireUser } from "@/lib/auth-guard";
 import { StorefrontHeader } from "@/components/navigation/storefront-header";
 import { StorefrontFooter } from "@/components/navigation/storefront-footer";
-import { AccountClientView } from "@/components/account/account-client-view";
+import { AccountClientView, CustomerOrder } from "@/components/account/account-client-view";
 import { db } from "@/lib/db";
-import { orders } from "@/lib/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { orders, orderItems } from "@/lib/db/schema";
+import { eq, desc, inArray } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +27,47 @@ export default async function AccountPage() {
     .orderBy(desc(orders.createdAt))
     .limit(10);
 
+  const orderIds = customerOrders.map((o) => o.id);
+  const items =
+    orderIds.length > 0
+      ? await db
+          .select()
+          .from(orderItems)
+          .where(inArray(orderItems.orderId, orderIds))
+      : [];
+
+  const itemMap = new Map<string, typeof items>();
+  for (const item of items) {
+    const list = itemMap.get(item.orderId) || [];
+    list.push(item);
+    itemMap.set(item.orderId, list);
+  }
+
   const typedUser = user as typeof user & { role?: string; phone?: string | null };
+
+  const initialOrders: CustomerOrder[] = customerOrders.map((o) => {
+    const orderItemsList = itemMap.get(o.id) || [];
+    return {
+      id: o.id,
+      orderNumber: o.orderNumber,
+      subtotal: Number(o.subtotal),
+      shippingAmount: Number(o.shippingAmount),
+      totalAmount: Number(o.totalAmount),
+      currency: o.currency,
+      status: o.status,
+      paymentStatus: o.paymentStatus,
+      createdAt: o.createdAt.toISOString(),
+      shippingAddress: o.shippingAddressSnapshot as CustomerOrder["shippingAddress"],
+      items: orderItemsList.map((i) => ({
+        id: i.id,
+        productName: i.productNameSnapshot,
+        sku: i.skuSnapshot,
+        quantity: i.quantity,
+        unitPrice: Number(i.unitPrice),
+        lineTotal: Number(i.lineTotal),
+      })),
+    };
+  });
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-background text-foreground">
@@ -43,14 +83,7 @@ export default async function AccountPage() {
             phone: typedUser.phone || null,
             createdAt: typedUser.createdAt ? new Date(typedUser.createdAt).toISOString() : null,
           }}
-          initialOrders={customerOrders.map((o) => ({
-            id: o.id,
-            orderNumber: o.orderNumber,
-            totalAmount: Number(o.totalAmount),
-            currency: o.currency,
-            status: o.status,
-            createdAt: o.createdAt.toISOString(),
-          }))}
+          initialOrders={initialOrders}
         />
       </main>
 

@@ -163,3 +163,158 @@ export async function updateOrderStatus(
     return { success: false, error: "Failed to update order status" };
   }
 }
+
+// 6. Category Management Actions
+const createCategorySchema = z.object({
+  name: z.string().min(2, "Category name must be at least 2 characters"),
+  slug: z.string().min(2, "Slug must be at least 2 characters"),
+  description: z.string().optional().default(""),
+  imageUrl: z.string().url("Please provide a valid image URL").optional().or(z.literal("")),
+  isActive: z.boolean().default(true),
+});
+
+export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
+
+export async function createCategory(rawInput: CreateCategoryInput) {
+  await requireAdmin("/admin/categories");
+
+  const validation = createCategorySchema.safeParse(rawInput);
+  if (!validation.success) {
+    return { success: false, error: validation.error.issues[0]?.message || "Invalid input" };
+  }
+
+  const data = validation.data;
+  const cleanSlug = data.slug.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-");
+
+  try {
+    const [existing] = await db
+      .select({ id: categories.id })
+      .from(categories)
+      .where(eq(categories.slug, cleanSlug))
+      .limit(1);
+
+    if (existing) {
+      return { success: false, error: "A category with this slug already exists." };
+    }
+
+    const [newCategory] = await db
+      .insert(categories)
+      .values({
+        name: data.name.trim(),
+        slug: cleanSlug,
+        description: data.description?.trim() || null,
+        imageUrl: data.imageUrl?.trim() || null,
+        isActive: data.isActive,
+      })
+      .returning();
+
+    revalidatePath("/admin/categories");
+    revalidatePath("/admin/products");
+    revalidatePath("/admin");
+    revalidatePath("/shop");
+    revalidatePath("/");
+
+    return { success: true, category: newCategory };
+  } catch (err: unknown) {
+    console.error("Error creating category:", err);
+    const msg = err instanceof Error ? err.message : "Failed to create category";
+    return { success: false, error: msg };
+  }
+}
+
+export async function updateCategory(
+  categoryId: string,
+  rawInput: Partial<CreateCategoryInput>
+) {
+  await requireAdmin("/admin/categories");
+
+  try {
+    const updateData: Record<string, unknown> = {
+      updatedAt: new Date(),
+    };
+
+    if (rawInput.name !== undefined) updateData.name = rawInput.name.trim();
+    if (rawInput.slug !== undefined) {
+      updateData.slug = rawInput.slug.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-");
+    }
+    if (rawInput.description !== undefined) {
+      updateData.description = rawInput.description.trim() || null;
+    }
+    if (rawInput.imageUrl !== undefined) {
+      updateData.imageUrl = rawInput.imageUrl.trim() || null;
+    }
+    if (rawInput.isActive !== undefined) {
+      updateData.isActive = rawInput.isActive;
+    }
+
+    await db.update(categories).set(updateData).where(eq(categories.id, categoryId));
+
+    revalidatePath("/admin/categories");
+    revalidatePath("/admin/products");
+    revalidatePath("/admin");
+    revalidatePath("/shop");
+    revalidatePath("/");
+
+    return { success: true };
+  } catch (err: unknown) {
+    console.error("Error updating category:", err);
+    return { success: false, error: "Failed to update category" };
+  }
+}
+
+export async function toggleCategoryActive(categoryId: string, currentVal: boolean) {
+  await requireAdmin("/admin/categories");
+
+  try {
+    await db
+      .update(categories)
+      .set({
+        isActive: !currentVal,
+        updatedAt: new Date(),
+      })
+      .where(eq(categories.id, categoryId));
+
+    revalidatePath("/admin/categories");
+    revalidatePath("/admin/products");
+    revalidatePath("/admin");
+    revalidatePath("/shop");
+    revalidatePath("/");
+
+    return { success: true, isActive: !currentVal };
+  } catch (err: unknown) {
+    console.error("Error toggling category status:", err);
+    return { success: false, error: "Failed to toggle category status" };
+  }
+}
+
+export async function deleteCategory(categoryId: string) {
+  await requireAdmin("/admin/categories");
+
+  try {
+    const linkedProducts = await db
+      .select({ id: products.id })
+      .from(products)
+      .where(eq(products.categoryId, categoryId));
+
+    if (linkedProducts.length > 0) {
+      return {
+        success: false,
+        error: `Cannot delete this category because ${linkedProducts.length} product(s) are assigned to it. Please reassign or delete them first.`,
+      };
+    }
+
+    await db.delete(categories).where(eq(categories.id, categoryId));
+
+    revalidatePath("/admin/categories");
+    revalidatePath("/admin/products");
+    revalidatePath("/admin");
+    revalidatePath("/shop");
+    revalidatePath("/");
+
+    return { success: true };
+  } catch (err: unknown) {
+    console.error("Error deleting category:", err);
+    return { success: false, error: "Failed to delete category" };
+  }
+}
+

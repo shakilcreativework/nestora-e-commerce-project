@@ -87,12 +87,15 @@ export default async function AdminDashboardPage() {
       {/* KPI Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {/* Total Products */}
-        <div className="p-6 rounded-2xl bg-card border border-border/70 space-y-3 shadow-xs">
+        <Link
+          href="/admin/products"
+          className="p-6 rounded-2xl bg-card border border-border/70 space-y-3 shadow-xs hover:border-primary/50 hover:shadow-md transition-all group block"
+        >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider group-hover:text-primary transition-colors">
               Catalog Items
             </span>
-            <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all">
               <Package className="w-4 h-4" />
             </div>
           </div>
@@ -104,15 +107,18 @@ export default async function AdminDashboardPage() {
               {activeProducts} Active & Approved for public storefront
             </p>
           </div>
-        </div>
+        </Link>
 
         {/* Categories */}
-        <div className="p-6 rounded-2xl bg-card border border-border/70 space-y-3 shadow-xs">
+        <Link
+          href="/admin/categories"
+          className="p-6 rounded-2xl bg-card border border-border/70 space-y-3 shadow-xs hover:border-amber-500/50 hover:shadow-md transition-all group block"
+        >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
               Categories
             </span>
-            <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-all">
               <Layers className="w-4 h-4" />
             </div>
           </div>
@@ -122,15 +128,18 @@ export default async function AdminDashboardPage() {
             </p>
             <p className="text-xs text-muted-foreground">Active curated collections</p>
           </div>
-        </div>
+        </Link>
 
         {/* Total Orders */}
-        <div className="p-6 rounded-2xl bg-card border border-border/70 space-y-3 shadow-xs">
+        <Link
+          href="/admin/orders"
+          className="p-6 rounded-2xl bg-card border border-border/70 space-y-3 shadow-xs hover:border-blue-500/50 hover:shadow-md transition-all group block"
+        >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
               Total Orders
             </span>
-            <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-all">
               <ShoppingBag className="w-4 h-4" />
             </div>
           </div>
@@ -140,7 +149,7 @@ export default async function AdminDashboardPage() {
             </p>
             <p className="text-xs text-muted-foreground">Placed customer transactions</p>
           </div>
-        </div>
+        </Link>
 
         {/* Customers */}
         <div className="p-6 rounded-2xl bg-card border border-border/70 space-y-3 shadow-xs">

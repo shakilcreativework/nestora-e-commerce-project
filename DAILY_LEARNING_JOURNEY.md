@@ -879,7 +879,58 @@ Building with a strict human-in-the-loop review process and zero auto-pushes. Ex
 
 ---
 
+## 🏛️ Day 5 (Part 4): Customer Delivery Tracking Modal & Admin Category Management (NESTORA-057, 062, 067)
+- **তারিখ:** ২৩ অক্টোবর, ২০২৬
+- **স্ট্যাটাস:** Completed & Verified (Build Passed 100%, Zero Text-Wrapping Standard Enforced)
+- **মূল লক্ষ্য:** 
+  1. গ্রাহকদের জন্য অর্ডারের প্রতিটি আইটেমের স্ন্যাপশট ও ইন্টারেক্টিভ ডেলিভারি ট্র্যাকিং রসিদ মডাল (`/account`)।
+  2. অ্যাডমিনের জন্য ক্যাটাগরি ও কালেকশন ম্যানেজমেন্ট ড্যাশবোর্ড (`/admin/categories`), লাইভ অ্যাক্টিভ/হাইড টগল, ক্রিয়েট ও এডিট মডাল এবং রিলেশনাল ডিলিট সেফগার্ড।
+  3. অ্যাডমিন এক্সিকিউটিভ ড্যাশবোর্ডে লাইভ মেট্রিক কেপিআই ও ক্লিকেবল নেভিগেশন রাউটিং (`/admin`)।
+
+### 🧠 আর্কিটেকচারাল সমাধান ও টিম-টপার কনসেপ্টস:
+1. **Interactive Customer Receipt & Delivery Progress Tracker (`/account` - NESTORA-057):**
+   - কাস্টমার পোর্টালের "Order History" টেবিলে প্রতিটি অর্ডারের আইটেম কাউন্ট, মূল্য ও স্ট্যাটাস ব্যাজের সাথে যুক্ত হয়েছে **"Track & Receipt"** বাটন।
+   - বাটনটিতে ক্লিক করলে ওপেন হয় একটি আর্টফুল মডাল যাতে রয়েছে:
+     - **Visual Milestone Tracker:** ৫-ধাপের প্রোগ্রেস লাইন (`Order Placed` ➔ `Confirmed` ➔ `In Production` ➔ `Dispatched` ➔ `Delivered`) যা অর্ডারের লাইভ ডাটাবেজ স্ট্যাটাসের সাথে রিয়েল-টাইমে হাইলাইট হয়।
+     - **Immutable Itemized Snapshot:** অর্ডারের সময় সংরক্ষিত প্রতিটি পণ্যের ছবি, নাম, মূল্য ও পরিমাণের লিস্ট।
+     - **Verified Delivery Address & Telemetry:** গ্রাহকের শিপিং নাম, ফোন নম্বর, সম্পূর্ণ ডেলিভারি ঠিকানা এবং মেথড।
+     - **Financial Summary:** সাবটোটাল, কুরিয়ার শিপিং চার্জ, এস্টিমেটেড সেলস ট্যাক্স এবং নেট পেড টোটাল।
+2. **Admin Category & Taxonomy Management (`/admin/categories` - NESTORA-062):**
+   - **Live Aggregated Product Counting:** PostgreSQL ও Drizzle ORM-এর `leftJoin` ও `count(products.id)` কুয়েরির মাধ্যমে প্রতিটি ক্যাটাগরিতে কতটি পণ্য সংযুক্ত রয়েছে তা তাৎক্ষণিকভাবে গণনা করা হয়।
+   - **Zero Text-Wrapping Table:** সকল ডিভাইস এবং রেজোলিউশনে টেবিলের টেক্সট যাতে কোনো অবস্থাতেই না ভাঙে সেজন্য `overflow-x-auto`, `min-w-[850px]` এবং প্রতিটি সেলে `whitespace-nowrap` সুনিশ্চিত করা হয়েছে।
+   - **Adaptive Mobile Layout (`md:hidden`):** স্মার্টফোন ও ছোট ডিভাইসের জন্য টেবিলের বদলে প্রিমিয়াম কার্ড স্ট্যাক ডিজাইন রেন্ডার হয়, যেখানে কোনো টেক্সট ওভারল্যাপ হয় না।
+   - **Real-Time Active / Hidden Toggle:** এক ক্লিকে ক্যাটাগরিকে পাবলিক স্টোরফ্রন্ট থেকে অ্যাক্টিভ বা হাইড করা যায় এবং সাথে সাথে অপটিমিস্টিক স্টেট আপডেট হয়।
+   - **Relational Integrity Delete Safeguard:** যদি কোনো ক্যাটাগরির অধীনে একটি পণ্যও বিদ্যমান থাকে, তবে ডাটাবেজ সুরক্ষার স্বার্থে সিস্টেম ডিলিট ব্লক করে এবং পরিষ্কার সতর্কতা প্রদান করে।
+   - **Modal-Based Create & Edit Experience:** প্রিসেট আর্টফুল ইমেজ গ্যালারি, অটোমেটিক স্লাগ জেনারেটর এবং ইনস্ট্যান্ট রিভ্যালিডেশন।
+3. **Admin Executive Telemetry & Fast Routing (`/admin` - NESTORA-067):**
+   - ড্যাশবোর্ডের সব প্রধান কেপিআই কার্ডগুলোকে (Catalog Items, Categories, Total Orders) ক্লিকেবল ইন্টারেক্টিভ লিংকে রূপান্তরিত করা হয়েছে।
+
+### 🧪 ভেরিফিকেশন রেজাল্ট:
+- `npm run typecheck` ➔ **PASS** (০ টাইপ এরর)
+- `npm run build` ➔ **PASS** (সকল ডাইনামিক রুট `/account`, `/admin`, `/admin/categories`, `/admin/products`, `/admin/orders` সফলভাবে কম্পাইলড)
+
+### 📋 আপনার জন্য স্টেপ-বাই-স্টেপ টেস্ট চেকলিস্ট:
+1. **কাস্টমার রসিদ ও ট্র্যাকিং মডাল টেস্ট:**
+   - ব্রাউজারে [http://localhost:3000/account](http://localhost:3000/account) এ যান।
+   - "Order History" ট্যাবে আপনার অর্ডারের ডানপাশে থাকা **"Track & Receipt"** বাটনে ক্লিক করুন।
+   - দেখুন কত সুন্দর ৫-স্টেপ ডেলিভারি টাইমলাইন এবং সম্পূর্ণ আইটেমাইজড রসিদ প্রদর্শিত হচ্ছে!
+2. **অ্যাডমিন ক্যাটাগরি ম্যানেজমেন্ট টেস্ট:**
+   - ব্রাউজারে [http://localhost:3000/admin/categories](http://localhost:3000/admin/categories) এ যান।
+   - সব ক্যাটাগরি, কাভার ইমেজ, স্লাগ, মোট প্রোডাক্ট সংখ্যা এবং অ্যাক্টিভ স্ট্যাটাস দেখতে পাবেন।
+   - যেকোনো ক্যাটাগরির পাশে **"Active"** বাটনে ক্লিক করে লাইভ **"Hidden"** করে দিন—স্টোরফ্রন্টে ক্যাটাগরি ইনস্ট্যান্ট আপডেট হবে।
+   - **"New Category"** বাটনে ক্লিক করে নতুন কালেকশন যোগ করুন (প্রিসেট ইমেজ সহ)।
+   - টেবিলের এক্সটার্নাল লিংক আইকনে ক্লিক করে সরাসরি পাবলিক ক্যাটাগরি পেজ প্রিভিউ করুন।
+3. পরিবর্তনগুলো সন্তোষজনক হলে গিটহাবে ম্যানুয়ালি পুশ করুন:
+   ```bash
+   git add .
+   git commit -m "feat: complete customer delivery tracking modal and admin category management"
+   git push origin main
+   ```
+
+---
+
 *(পরবর্তী দিনের লগগুলো এখানে পর্যায়ক্রমে যোগ হবে)*
+
 
 
 
