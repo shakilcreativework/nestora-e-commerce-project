@@ -17,6 +17,7 @@ import {
   Shield,
   Bell,
   Search,
+  Tag,
 } from "lucide-react";
 
 interface AdminShellProps {
@@ -36,6 +37,7 @@ export function AdminShell({ user, children }: AdminShellProps) {
     { name: "Products", href: "/admin/products", icon: Package },
     { name: "Categories", href: "/admin/categories", icon: Layers },
     { name: "Orders", href: "/admin/orders", icon: ShoppingBag },
+    { name: "Coupons", href: "/admin/coupons", icon: Tag },
     { name: "Customers", href: "/admin/customers", icon: Users },
     { name: "Settings", href: "/admin/settings", icon: Settings },
   ];

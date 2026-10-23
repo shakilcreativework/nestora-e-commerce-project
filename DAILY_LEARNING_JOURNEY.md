@@ -929,7 +929,63 @@ Building with a strict human-in-the-loop review process and zero auto-pushes. Ex
 
 ---
 
+## 🏷️ Day 5 (Part 5): Enterprise Coupon Management & Checkout Promo Engine (NESTORA-065)
+- **তারিখ:** ২৩ অক্টোবর, ২০২৬
+- **স্ট্যাটাস:** Completed & Verified (Build Passed 100%, Zero Text-Wrapping Standard Enforced)
+- **মূল লক্ষ্য:** 
+  1. ডাটাবেজ লেভেলে ভাউচার ও প্রোমো কোড আর্কিটেকচার তৈরি (`coupons` টেবিল, `discount_type` enum, `orders.coupon_code`)।
+  2. সার্ভার-অথরিটেটিভ কুপন ভ্যালিডেশন ইঞ্জিন (`validateCoupon`, `calculateCheckout`)—ক্লায়েন্ট সাইডকে কখনোই বিশ্বাস না করে সার্ভার সাইডে ডিসকাউন্ট, মেয়াদ, ব্যবহারের লিমিট এবং মিনিমাম অর্ডার স্পেন্ড ক্যালকুলেশন।
+  3. চেকআউট পেজে ইন্টারেক্টিভ কুপন বক্স ও লাইভ ডিসকাউন্ট রিক্যালকুলেশন (`/checkout`)।
+  4. অ্যাডমিন কুপন পোর্টাল (`/admin/coupons`)—ভাউচার ক্রিয়েটর মডাল, অ্যাক্টিভ/পজ লাইভ টগল, জিরো-র‍্যাপ রেসপনসিভ টেবিল ও মোবাইল কার্ড লেআউট।
+  5. ট্রানজ্যাকশনাল কুপন রিডেম্পশন ট্র্যাকিং—অর্ডার প্লেস হলে ডাটাবেজে স্বয়ংক্রিয়ভাবে কুপন ব্যবহার কাউন্টার বৃদ্ধি পাওয়া।
+
+### 🧠 আর্কিটেকচারাল সমাধান ও টিম-টপার কনসেপ্টস:
+1. **Server-Authoritative Financial Validation (`src/lib/actions/checkout.ts`):**
+   - ক্লায়েন্ট সাইড থেকে পাঠানো ডিসকাউন্ট কখনো ট্রাস্ট করা হয় না।
+   - কুপন কোড সাবমিট হলে সার্ভার স্বয়ংক্রিয়ভাবে ৪টি বিজনেস শর্ত যাচাই করে:
+     - কুপনটি ডাটাবেজে সক্রিয় (`is_active = true`) কি না।
+     - কুপনের মেয়াদ শেষ (`expires_at < now()`) হয়েছে কি না।
+     - সর্বোচ্চ ব্যবহারের সীমা (`usage_count >= usage_limit`) পূর্ণ হয়েছে কি না।
+     - অর্ডারের সাবটোটাল কুপনের নির্ধারিত ন্যূনতম স্পেন্ডের (`subtotal >= min_order_amount`) সমান বা বেশি কি না।
+   - শতভাগ শতভাগ নির্ভুলভাবে পার্সেন্টেজ ডিসকাউন্ট (যেমন: `WELCOME10` ➔ ১০% ছাড়) অথবা ফিক্সড ডলার ছাড় (যেমন: `AUTUMN25` ➔ $২৫ ছাড়) হিসাব করা হয় এবং ট্যাক্স ও শিপিং স্বয়ংক্রিয়ভাবে রিক্যালকুলেট হয়।
+2. **Atomic Order Placement with Coupon Telemetry:**
+   - অর্ডার প্লেসের সময় `orders` টেবিলে `coupon_code` এবং `discount_amount` পার্মানেন্ট স্ন্যাপশট হিসেবে সেভ হয়।
+   - একই `db.transaction()` এর মধ্যে `coupons` টেবিলের `usage_count` ১ বৃদ্ধি পায়।
+3. **Interactive Checkout Promo UI (`src/components/checkout/checkout-view.tsx`):**
+   - কার্ট সামারির ভেতর প্রিমিয়াম প্রোমো কোড ইনপুট ফিল্ড ও "Apply" বাটন।
+   - সফল হলে মুহূর্তেই এমারেল্ড ব্যাজে ডিসকাউন্ট ডিটেইলস ও বাদ দেওয়ার জন্য "Remove" বাটন ভেসে ওঠে।
+   - শর্ত পূরণ না হলে পরিষ্কার ও স্পষ্ট সতর্কবার্তা প্রদর্শিত হয়।
+4. **Admin Coupon Hub (`/admin/coupons`):**
+   - **Zero Text-Wrapping Rule:** প্রতিটি টেবিলে `min-w-[850px]` এবং `whitespace-nowrap` সুনিশ্চিত করা হয়েছে।
+   - **Mobile Card View (`md:hidden`):** মোবাইলের জন্য প্রিমিয়াম স্ট্যাকড ভাউচার কার্ড।
+   - **Create Voucher Modal:** কোড, পার্সেন্টেজ/ফিক্সড টাইপ, মূল্য, মিনিমাম স্পেন্ড ও এক্সপায়ারি ডেট সিলেকশন।
+
+### 🧪 ভেরিফিকেশন রেজাল্ট:
+- `npm run typecheck` ➔ **PASS** (০ টাইপ এরর)
+- `npm run build` ➔ **PASS** (`/admin/coupons` ও `/checkout` সহ সকল রুট সফলভাবে বিল্ড হয়েছে)
+
+### 📋 আপনার জন্য স্টেপ-বাই-স্টেপ টেস্ট চেকলিস্ট:
+1. **চেকআউট প্রোমো কোড টেস্ট:**
+   - কার্টে কোনো পণ্য যোগ করে [http://localhost:3000/checkout](http://localhost:3000/checkout) এ যান।
+   - Order Summary-র নিচে Promo Code বক্সে লিখুন: `WELCOME10` এবং **"Apply"** বাটনে ক্লিক করুন।
+   - দেখুন সাথে সাথে ১০% ডিসকাউন্ট মাইনাস হয়ে মোট মূল্য রিক্যালকুলেট হয়ে গেছে!
+   - `AUTUMN25` ট্রাই করুন—যদি কার্ট $১৫০ এর কম হয় তবে সিস্টেম বলবে: *"Minimum order amount of $150.00 is required"*।
+2. **অ্যাডমিন কুপন পোর্টাল টেস্ট:**
+   - ব্রাউজারে [http://localhost:3000/admin/coupons](http://localhost:3000/admin/coupons) এ যান।
+   - সব ভাউচার, ডিসকাউন্ট টাইপ, মিনিমাম স্পেন্ড এবং কতবার রিডিম হয়েছে তা দেখতে পাবেন।
+   - **"New Voucher"** বাটনে ক্লিক করে নিজের পছন্দমতো নতুন প্রোমো কোড তৈরি করুন।
+   - যেকোনো ভাউচারের পাশে **"Active"** বাটনে ক্লিক করে তাৎক্ষণিক **"Paused"** করে দিন।
+3. পরিবর্তনগুলো সন্তোষজনক হলে গিটহাবে ম্যানুয়ালি পুশ করুন:
+   ```bash
+   git add .
+   git commit -m "feat(coupons): implement enterprise coupon management and checkout promo engine"
+   git push origin main
+   ```
+
+---
+
 *(পরবর্তী দিনের লগগুলো এখানে পর্যায়ক্রমে যোগ হবে)*
+
 
 
 

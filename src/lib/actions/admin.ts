@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { products, productImages, productVariants, categories, orders } from "@/lib/db/schema";
+import { products, productImages, productVariants, categories, orders, coupons } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { requireAdmin } from "@/lib/auth-guard";
 import { revalidatePath } from "next/cache";
@@ -317,4 +317,114 @@ export async function deleteCategory(categoryId: string) {
     return { success: false, error: "Failed to delete category" };
   }
 }
+
+// 7. Coupon Management Actions
+const createCouponSchema = z.object({
+  code: z.string().min(3, "Coupon code must be at least 3 characters"),
+  description: z.string().optional().nullable(),
+  discountType: z.enum(["PERCENTAGE", "FIXED"]),
+  discountValue: z.number().positive("Discount value must be greater than 0"),
+  minOrderDollars: z.number().min(0, "Minimum spend cannot be negative").default(0),
+  usageLimit: z.number().int().positive().optional().nullable(),
+  expiresAt: z.string().optional().nullable(),
+  isActive: z.boolean().default(true),
+});
+
+export type CreateCouponInput = z.infer<typeof createCouponSchema>;
+
+export async function createCoupon(rawInput: CreateCouponInput) {
+  await requireAdmin("/admin/coupons");
+
+  const validation = createCouponSchema.safeParse(rawInput);
+  if (!validation.success) {
+    return { success: false, error: validation.error.issues[0]?.message || "Invalid input" };
+  }
+
+  const data = validation.data;
+  const cleanCode = data.code.toUpperCase().trim().replace(/[^A-Z0-9_-]+/g, "");
+
+  try {
+    const [existing] = await db
+      .select({ id: coupons.id })
+      .from(coupons)
+      .where(eq(coupons.code, cleanCode))
+      .limit(1);
+
+    if (existing) {
+      return { success: false, error: "A coupon with this code already exists." };
+    }
+
+    const storedDiscountValue =
+      data.discountType === "PERCENTAGE"
+        ? Math.round(data.discountValue)
+        : Math.round(data.discountValue * 100);
+
+    const minOrderCents = Math.round((data.minOrderDollars || 0) * 100);
+
+    const [newCoupon] = await db
+      .insert(coupons)
+      .values({
+        code: cleanCode,
+        description: data.description?.trim() || null,
+        discountType: data.discountType,
+        discountValue: storedDiscountValue,
+        minOrderAmount: minOrderCents,
+        usageLimit: data.usageLimit || null,
+        isActive: data.isActive,
+        expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
+      })
+      .returning();
+
+    revalidatePath("/admin/coupons");
+    revalidatePath("/admin");
+    revalidatePath("/checkout");
+
+    return { success: true, coupon: newCoupon };
+  } catch (err: unknown) {
+    console.error("Error creating coupon:", err);
+    const msg = err instanceof Error ? err.message : "Failed to create coupon";
+    return { success: false, error: msg };
+  }
+}
+
+export async function toggleCouponActive(couponId: string, currentVal: boolean) {
+  await requireAdmin("/admin/coupons");
+
+  try {
+    await db
+      .update(coupons)
+      .set({
+        isActive: !currentVal,
+        updatedAt: new Date(),
+      })
+      .where(eq(coupons.id, couponId));
+
+    revalidatePath("/admin/coupons");
+    revalidatePath("/admin");
+    revalidatePath("/checkout");
+
+    return { success: true, isActive: !currentVal };
+  } catch (err: unknown) {
+    console.error("Error toggling coupon status:", err);
+    return { success: false, error: "Failed to toggle coupon status" };
+  }
+}
+
+export async function deleteCoupon(couponId: string) {
+  await requireAdmin("/admin/coupons");
+
+  try {
+    await db.delete(coupons).where(eq(coupons.id, couponId));
+
+    revalidatePath("/admin/coupons");
+    revalidatePath("/admin");
+    revalidatePath("/checkout");
+
+    return { success: true };
+  } catch (err: unknown) {
+    console.error("Error deleting coupon:", err);
+    return { success: false, error: "Failed to delete coupon" };
+  }
+}
+
 

@@ -10,7 +10,7 @@ import {
   selectCartSubtotal,
   clearCart,
 } from "@/lib/store/features/cart-slice";
-import { placeOrder } from "@/lib/actions/checkout";
+import { placeOrder, validateCoupon } from "@/lib/actions/checkout";
 import {
   ShieldCheck,
   Truck,
@@ -22,6 +22,8 @@ import {
   Loader2,
   CheckCircle2,
   Sparkles,
+  Tag,
+  X,
 } from "lucide-react";
 
 interface CheckoutViewProps {
@@ -50,14 +52,56 @@ export function CheckoutView({ initialUser }: CheckoutViewProps) {
   const [shippingMethod, setShippingMethod] = useState<"STANDARD" | "EXPRESS">("STANDARD");
   const [customerNote, setCustomerNote] = useState("");
 
+  // Promo code state
+  const [couponInput, setCouponInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    description: string | null;
+    discountAmount: number;
+  } | null>(null);
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Calculate live estimates based on current selection
-  const isFreeShipping = cartSubtotal >= 15000;
+  // Calculate live estimates based on current selection and applied coupon
+  const discountAmount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+  const discountedSubtotal = Math.max(0, cartSubtotal - discountAmount);
+  const isFreeShipping = discountedSubtotal >= 15000;
   const shippingCost = shippingMethod === "EXPRESS" ? 2500 : isFreeShipping ? 0 : 1500;
-  const estimatedTax = Math.round(cartSubtotal * 0.08);
-  const grandTotal = cartSubtotal + shippingCost + estimatedTax;
+  const estimatedTax = Math.round(discountedSubtotal * 0.08);
+  const grandTotal = discountedSubtotal + shippingCost + estimatedTax;
+
+  const handleApplyCoupon = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!couponInput.trim()) return;
+    setIsValidatingCoupon(true);
+    setCouponError(null);
+
+    try {
+      const res = await validateCoupon(couponInput, cartSubtotal);
+      if (res.success && res.coupon) {
+        setAppliedCoupon({
+          code: res.coupon.code,
+          description: res.coupon.description,
+          discountAmount: res.coupon.discountAmount,
+        });
+        setCouponInput("");
+      } else {
+        setCouponError(res.error || "Invalid coupon code.");
+      }
+    } catch {
+      setCouponError("Failed to apply promo code.");
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponError(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,6 +132,7 @@ export function CheckoutView({ initialUser }: CheckoutViewProps) {
         country,
         shippingMethod,
         customerNote,
+        couponCode: appliedCoupon?.code,
         items: cartItems.map((item) => ({
           id: item.id,
           quantity: item.quantity,
@@ -470,6 +515,62 @@ export function CheckoutView({ initialUser }: CheckoutViewProps) {
               ))}
             </div>
 
+            {/* Promo Code & Voucher Section */}
+            <div className="pt-2 border-t border-border/60">
+              {appliedCoupon ? (
+                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Tag className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <div>
+                      <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 font-mono">
+                        {appliedCoupon.code}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {appliedCoupon.description || "Promo code discount applied"}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleRemoveCoupon}
+                    className="p-1 rounded-lg hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 transition-colors"
+                    title="Remove coupon"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={couponInput}
+                      onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                      placeholder="Promo Code (e.g. WELCOME10)"
+                      className="flex-1 px-3 py-2 rounded-xl border border-border bg-background text-xs font-mono tracking-wider text-foreground uppercase placeholder:normal-case placeholder:tracking-normal focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleApplyCoupon}
+                      disabled={isValidatingCoupon || !couponInput.trim()}
+                      className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-muted hover:bg-muted/80 text-foreground border border-border transition-all disabled:opacity-50 flex items-center gap-1.5 shrink-0"
+                    >
+                      {isValidatingCoupon && <Loader2 className="w-3 h-3 animate-spin" />}
+                      Apply
+                    </button>
+                  </div>
+                  {couponError && (
+                    <p className="text-[11px] text-rose-500 font-medium">{couponError}</p>
+                  )}
+                  <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-amber-500" />
+                    Try <span className="font-mono font-bold text-foreground">WELCOME10</span> (10% off) or{" "}
+                    <span className="font-mono font-bold text-foreground">AUTUMN25</span> ($25 off $150+)
+                  </p>
+                </div>
+              )}
+            </div>
+
             {/* Calculations Breakdown */}
             <div className="space-y-2.5 pt-4 border-t border-border text-xs sm:text-sm">
               <div className="flex justify-between text-muted-foreground">
@@ -478,6 +579,15 @@ export function CheckoutView({ initialUser }: CheckoutViewProps) {
                   ${(cartSubtotal / 100).toFixed(2)}
                 </span>
               </div>
+              {appliedCoupon && (
+                <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-medium">
+                  <span className="flex items-center gap-1">
+                    <Tag className="w-3.5 h-3.5" />
+                    Promo Discount ({appliedCoupon.code})
+                  </span>
+                  <span>- ${(discountAmount / 100).toFixed(2)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Truck className="w-3.5 h-3.5 text-muted-foreground/70" />

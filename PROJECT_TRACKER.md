@@ -136,8 +136,8 @@ approval and the manual Git outcome are recorded.
   NESTORA-064   Order queue and status          COMPLETED     NESTORA-057  Pass         Approved   Pushed    Commit 36c4753
                 transitions                                   NESTORA-060                                started   
 
-  NESTORA-065   Coupon management and           NOT_STARTED   NESTORA-051,                    Pending    Not       
-                validation                                    NESTORA-060                                started   
+  NESTORA-065   Coupon management and           COMPLETED     NESTORA-051,        Pass         Approved   Awaiting  Checkout promo code engine,
+                validation                                    NESTORA-060                                 Review    /admin/coupons CRUD, zero-wrap
 
   NESTORA-066   Review submission and           NOT_STARTED   NESTORA-036,                    Pending    Not       
                 moderation                                    NESTORA-060                                started   

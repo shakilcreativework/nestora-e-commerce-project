@@ -24,6 +24,7 @@ export const orderStatusEnum = pgEnum("order_status", [
 ]);
 export const paymentStatusEnum = pgEnum("payment_status", ["UNPAID", "PAID", "FAILED", "REFUNDED"]);
 export const reviewStatusEnum = pgEnum("review_status", ["PENDING", "APPROVED", "REJECTED"]);
+export const discountTypeEnum = pgEnum("discount_type", ["PERCENTAGE", "FIXED"]);
 
 // Users (Better Auth Compatible with Roles)
 export const users = pgTable("users", {
@@ -168,6 +169,7 @@ export const orders = pgTable("orders", {
   totalAmount: integer("total_amount").notNull(),
   shippingAddressSnapshot: jsonb("shipping_address_snapshot").notNull(),
   customerNote: text("customer_note"),
+  couponCode: text("coupon_code"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
   paidAt: timestamp("paid_at"),
@@ -187,4 +189,21 @@ export const orderItems = pgTable("order_items", {
   unitPrice: integer("unit_price").notNull(),
   quantity: integer("quantity").notNull(),
   lineTotal: integer("line_total").notNull(),
+});
+
+// Coupons & Promotional Discounts
+export const coupons = pgTable("coupons", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  code: text("code").notNull().unique(), // e.g. "WELCOME10", "AUTUMN25"
+  description: text("description"),
+  discountType: discountTypeEnum("discount_type").default("PERCENTAGE").notNull(),
+  discountValue: integer("discount_value").notNull(), // Percent (e.g. 15 for 15%) OR fixed cents (e.g. 2000 for $20.00)
+  minOrderAmount: integer("min_order_amount").default(0).notNull(), // in cents (e.g. 5000 = $50 min spend)
+  maxDiscountAmount: integer("max_discount_amount"), // optional cap in cents
+  usageLimit: integer("usage_limit"), // null = unlimited
+  usageCount: integer("usage_count").default(0).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  expiresAt: timestamp("expires_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

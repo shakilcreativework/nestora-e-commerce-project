@@ -1,8 +1,8 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { products, productVariants, orders, orderItems, users } from "@/lib/db/schema";
-import { eq, inArray } from "drizzle-orm";
+import { products, productVariants, orders, orderItems, users, coupons } from "@/lib/db/schema";
+import { eq, inArray, sql } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth-guard";
 import { z } from "zod";
 
@@ -19,6 +19,7 @@ const checkoutSchema = z.object({
   country: z.string().min(2, "Country is required"),
   shippingMethod: z.enum(["STANDARD", "EXPRESS"]),
   customerNote: z.string().optional(),
+  couponCode: z.string().optional(),
   items: z
     .array(
       z.object({
@@ -31,6 +32,87 @@ const checkoutSchema = z.object({
 
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
 
+export interface ValidatedCouponResult {
+  code: string;
+  description: string | null;
+  discountType: "PERCENTAGE" | "FIXED";
+  discountValue: number;
+  discountAmount: number; // in cents
+}
+
+/**
+ * Senior Developer Standard:
+ * Authoritative Coupon Validation.
+ * Validates active status, expiry, usage limit, and minimum order spend.
+ */
+export async function validateCoupon(
+  rawCode: string,
+  subtotalCents: number
+): Promise<{ success: boolean; coupon?: ValidatedCouponResult; error?: string }> {
+  try {
+    const code = rawCode.trim().toUpperCase();
+    if (!code) {
+      return { success: false, error: "Please enter a coupon code." };
+    }
+
+    const [coupon] = await db
+      .select()
+      .from(coupons)
+      .where(eq(coupons.code, code))
+      .limit(1);
+
+    if (!coupon) {
+      return { success: false, error: "Invalid coupon code. Please check and try again." };
+    }
+
+    if (!coupon.isActive) {
+      return { success: false, error: "This coupon is no longer active." };
+    }
+
+    if (coupon.expiresAt && new Date(coupon.expiresAt) < new Date()) {
+      return { success: false, error: "This coupon has expired." };
+    }
+
+    if (coupon.usageLimit !== null && coupon.usageCount >= coupon.usageLimit) {
+      return { success: false, error: "This coupon has reached its maximum redemption limit." };
+    }
+
+    if (subtotalCents < coupon.minOrderAmount) {
+      const minDollars = (coupon.minOrderAmount / 100).toFixed(2);
+      return {
+        success: false,
+        error: `Minimum order amount of $${minDollars} is required to use this coupon.`,
+      };
+    }
+
+    // Calculate discount amount
+    let discountAmount = 0;
+    if (coupon.discountType === "PERCENTAGE") {
+      discountAmount = Math.round((subtotalCents * coupon.discountValue) / 100);
+      if (coupon.maxDiscountAmount && discountAmount > coupon.maxDiscountAmount) {
+        discountAmount = coupon.maxDiscountAmount;
+      }
+    } else {
+      // FIXED
+      discountAmount = Math.min(coupon.discountValue, subtotalCents);
+    }
+
+    return {
+      success: true,
+      coupon: {
+        code: coupon.code,
+        description: coupon.description,
+        discountType: coupon.discountType,
+        discountValue: coupon.discountValue,
+        discountAmount,
+      },
+    };
+  } catch (err) {
+    console.error("Error validating coupon:", err);
+    return { success: false, error: "Failed to validate coupon." };
+  }
+}
+
 export interface ServerCalculationResult {
   items: {
     productId: string;
@@ -42,6 +124,8 @@ export interface ServerCalculationResult {
     availableStock: number;
   }[];
   subtotal: number; // cents
+  discountAmount: number; // cents
+  couponCode?: string;
   shippingAmount: number; // cents
   taxAmount: number; // cents
   totalAmount: number; // cents
@@ -55,7 +139,8 @@ export interface ServerCalculationResult {
  */
 export async function calculateCheckout(
   items: { id: string; quantity: number }[],
-  shippingMethod: "STANDARD" | "EXPRESS" = "STANDARD"
+  shippingMethod: "STANDARD" | "EXPRESS" = "STANDARD",
+  couponCode?: string
 ): Promise<{ success: boolean; data?: ServerCalculationResult; error?: string }> {
   try {
     if (!items || items.length === 0) {
@@ -131,27 +216,43 @@ export async function calculateCheckout(
       });
     }
 
-    // 3. Shipping Rule (NESTORA-050):
+    // 3. Coupon validation & discount calculation
+    let discountAmount = 0;
+    let appliedCouponCode: string | undefined = undefined;
+
+    if (couponCode && couponCode.trim()) {
+      const couponRes = await validateCoupon(couponCode, subtotal);
+      if (couponRes.success && couponRes.coupon) {
+        discountAmount = couponRes.coupon.discountAmount;
+        appliedCouponCode = couponRes.coupon.code;
+      }
+    }
+
+    const discountedSubtotal = Math.max(0, subtotal - discountAmount);
+
+    // 4. Shipping Rule (NESTORA-050):
     // Standard shipping is FREE for orders $150+ (15000 cents), otherwise $15 (1500 cents).
     // Express courier is $25 (2500 cents).
     let shippingAmount = 0;
     if (shippingMethod === "EXPRESS") {
       shippingAmount = 2500;
     } else {
-      shippingAmount = subtotal >= 15000 ? 0 : 1500;
+      shippingAmount = discountedSubtotal >= 15000 ? 0 : 1500;
     }
 
-    // 4. Tax calculation (Estimated 8%)
-    const taxAmount = Math.round(subtotal * 0.08);
+    // 5. Tax calculation (Estimated 8% on discounted goods)
+    const taxAmount = Math.round(discountedSubtotal * 0.08);
 
-    // 5. Final grand total
-    const totalAmount = subtotal + shippingAmount + taxAmount;
+    // 6. Final grand total
+    const totalAmount = discountedSubtotal + shippingAmount + taxAmount;
 
     return {
       success: true,
       data: {
         items: verifiedItems,
         subtotal,
+        discountAmount,
+        couponCode: appliedCouponCode,
         shippingAmount,
         taxAmount,
         totalAmount,
@@ -166,7 +267,7 @@ export async function calculateCheckout(
 
 /**
  * Senior Developer Standard:
- * Atomic Order Creation with immutable snapshotting and stock adjustment inside transaction.
+ * Atomic Order Creation with immutable snapshotting, coupon tracking, and stock adjustment inside transaction.
  */
 export async function placeOrder(rawInput: CheckoutInput): Promise<{
   success: boolean;
@@ -186,12 +287,12 @@ export async function placeOrder(rawInput: CheckoutInput): Promise<{
     const input = validation.data;
 
     // 2. Authoritative Price & Stock Calculation
-    const calc = await calculateCheckout(input.items, input.shippingMethod);
+    const calc = await calculateCheckout(input.items, input.shippingMethod, input.couponCode);
     if (!calc.success || !calc.data) {
       return { success: false, error: calc.error || "Failed to calculate order totals." };
     }
 
-    const { items, subtotal, shippingAmount, taxAmount, totalAmount, currency } = calc.data;
+    const { items, subtotal, discountAmount, couponCode: verifiedCoupon, shippingAmount, taxAmount, totalAmount, currency } = calc.data;
 
     // 3. Determine User ID (Logged-in customer or guest customer record)
     const currentUser = await getCurrentUser();
@@ -240,8 +341,9 @@ export async function placeOrder(rawInput: CheckoutInput): Promise<{
           paymentStatus: "PAID", // Test mode marked as paid
           currency,
           subtotal,
+          discountAmount,
+          couponCode: verifiedCoupon || null,
           shippingAmount,
-          discountAmount: 0,
           totalAmount,
           shippingAddressSnapshot: {
             fullName: input.fullName,
@@ -292,6 +394,17 @@ export async function placeOrder(rawInput: CheckoutInput): Promise<{
             .set({ stockQuantity: updatedStock, updatedAt: new Date() })
             .where(eq(productVariants.id, variant.id));
         }
+      }
+
+      // C. Atomically increment coupon usage if applied
+      if (verifiedCoupon) {
+        await tx
+          .update(coupons)
+          .set({
+            usageCount: sql`${coupons.usageCount} + 1`,
+            updatedAt: new Date(),
+          })
+          .where(eq(coupons.code, verifiedCoupon));
       }
     });
 
