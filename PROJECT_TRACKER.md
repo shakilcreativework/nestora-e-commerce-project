@@ -68,17 +68,15 @@ approval and the manual Git outcome are recorded.
   NESTORA-032   Build home page sections        NOT_STARTED   NESTORA-031                     Pending    Not       
                                                                                                          started   
 
-  NESTORA-033   Build shop/catalog page         NOT_STARTED   NESTORA-031,                    Pending    Not       
-                                                              NESTORA-020                                started   
+  NESTORA-033   Build shop/catalog page         AWAITING_HUMAN_REVIEW NESTORA-031,          Pass       Pending    Manual    /shop route +
+                                                              NESTORA-020                                review     push ready CatalogView
+  NESTORA-034   Add category navigation and     AWAITING_HUMAN_REVIEW NESTORA-033          Pass       Pending    Manual    /category/[slug]
+                category page                                                                            review     push ready + pills nav
+  NESTORA-035   Add                             AWAITING_HUMAN_REVIEW NESTORA-033          Pass       Pending    Manual    Client-side instant
+                search/filter/sort/pagination                                                            review     push ready filter & sort
 
-  NESTORA-034   Add category navigation and     NOT_STARTED   NESTORA-033                     Pending    Not       
-                category page                                                                            started   
-
-  NESTORA-035   Add                             NOT_STARTED   NESTORA-033                     Pending    Not       
-                search/filter/sort/pagination                                                            started   
-
-  NESTORA-036   Build product detail page       AWAITING_HUMAN_REVIEW NESTORA-031,          Pass       Pending    Manual    Dynamic PDP +
-                                                              NESTORA-022                                review     push ready gallery + Redux
+  NESTORA-036   Build product detail page       COMPLETED     NESTORA-031,          Pass       Approved   Pushed    Commit 1a6b0a8
+                                                              NESTORA-022                                (1a6b0a8)  (Oct 23)  Dynamic PDP & gallery
 
   NESTORA-037   Add metadata and basic SEO      NOT_STARTED   NESTORA-032,                    Pending    Not       
                                                               NESTORA-033,                               started   

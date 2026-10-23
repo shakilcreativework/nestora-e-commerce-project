@@ -626,5 +626,51 @@ Building with a strict human-in-the-loop review process and zero auto-pushes. Ex
 
 ---
 
+## 🧭 Day 4 (Part 2): Dynamic Category Architecture & All-Products Shop Catalog (NESTORA-033 & NESTORA-034)
+- **তারিখ:** ২৩ অক্টোবর, ২০২৬
+- **স্ট্যাটাস:** Completed & Verified (Build Passed 100%)
+- **মূল লক্ষ্য:** ডেডিকেটেড ক্যাটাগরি রুট (`/category/[slug]`), অল কালেকশন শপ রুট (`/shop`), ক্যাটাগরি নেভিগেশন পিলস, ইনস্ট্যান্ট ক্লায়েন্ট সার্চ ও সর্টিং বার, এবং এম্পটি ফিল্টার স্টেট তৈরি করা।
+
+### 🧠 আর্কিটেকচারাল সমাধান ও টিম-টপার কনসেপ্টস:
+1. **Shared Catalog Component Architecture (`src/components/products/catalog-view.tsx`):**
+   - শপ পেজ এবং ক্যাটাগরি পেজের জন্য আলাদা আলাদা ইউআই ডুপ্লিকেট না করে একটি সেন্ট্রালাইজড, হাই-পারফরম্যান্স `CatalogView` তৈরি করা হয়েছে।
+   - **Zero-Latency Client Filter/Sort (`useMemo`):** কাস্টমার যখন ফিল্টার বা সর্ট পরিবর্তন করে, তখন কোনো অপ্রয়োজনীয় নেটওয়ার্ক রিকোয়েস্ট না পাঠিয়ে তৎক্ষণাৎ ব্রাউজারে পণ্য ফিল্টার ও সর্ট হয় (Price: Low to High, High to Low, Featured, Alphabetical)।
+   - **Live Search Bar:** কীওয়ার্ড বা ম্যাটেরিয়াল দিয়ে সার্চ করার রিয়েল-টাইম ইনপুট ও ক্লিয়ার বাটন।
+   - **Category Navigation Pills:** কাস্টমার যেকোনো ক্যাটাগরি পিলসে ক্লিক করে দ্রুত অন্য কালেকশনে যেতে পারে।
+2. **Dynamic PostgreSQL + Drizzle ORM Queries (`src/app/category/[slug]/page.tsx` & `/shop/page.tsx`):**
+   - ক্যাটাগরি এবং পণ্য সার্ভার থেকে নিরাপদে ফেচ হচ্ছে।
+   - **Admin Approval Rule Enforced:** ড্রাফট বা আন-অ্যাপ্রুভড কোনো পণ্য কখনোই ক্যাটাগরি পেজে আসবে না (`status = 'ACTIVE'` এবং `isApproved = true`)।
+   - অবৈধ বা নিষ্ক্রিয় ক্যাটাগরি স্লাগ হিট করলে সরাসরি `notFound()` হ্যান্ডলার ট্রিগার করবে।
+3. **Responsive Grid Alignment (Strict 6-Tier Rule):**
+   - মোবাইল ও ট্যাবলেটে (`<1024px`) পাশাপাশি **২টি প্রোডাক্ট কার্ড**।
+   - ল্যাপটপ স্ক্রিনে (`1024px - 1279px`) প্রতি সারিতে **৩টি কার্ড**।
+   - বড় মনিটরে (`1280px+`) প্রতি সারিতে **৪টি কার্ড**।
+
+### 🧪 ভেরিফিকেশন রেজাল্ট:
+- `npm run typecheck` ➔ **PASS** (০ টাইপ এরর)
+- `npm run build` ➔ **PASS** (নতুন রুট `/category/[slug]` এবং `/shop` সফলভাবে কম্পাইলড)
+
+### 📋 আপনার জন্য স্টেপ-বাই-স্টেপ চেকলিস্ট:
+1. ব্রাউজারে নিচের লিঙ্কগুলোতে প্রবেশ করে টেস্ট করুন:
+   - **All Products:** `http://localhost:3000/shop`
+   - **Workspace:** `http://localhost:3000/category/workspace`
+   - **Lighting:** `http://localhost:3000/category/lighting`
+   - **Ceramics:** `http://localhost:3000/category/ceramics`
+   - **Storage:** `http://localhost:3000/category/storage`
+2. টেস্ট করুন:
+   - ক্যাটাগরি পিলসগুলোতে ক্লিক করে এক কালেকশন থেকে অন্য কালেকশনে যাওয়া যাচ্ছে কিনা।
+   - সার্চ বক্সে কিছু লিখুন (যেমন: "Oak" বা "Lamp")—দেখবেন সাথে সাথে লাইভ ফিল্টার হচ্ছে।
+   - সর্ট ড্রপডাউন পরিবর্তন করে দেখুন (যেমন: "Price: Low to High")—ইনস্ট্যান্ট প্রাইস অনুযায়ী সর্ট হচ্ছে।
+   - যেকোনো প্রোডাক্টে "Quick Add" বাটন চাপুন—কার্ট ড্রয়ার ওপেন হবে।
+3. পরিবর্তনগুলো সন্তোষজনক হলে গিটহাবে ম্যানুয়ালি পুশ করুন:
+   ```bash
+   git add .
+   git commit -m "feat(catalog): implement dynamic category pages, all products shop, and instant filter and sort bar"
+   git push origin main
+   ```
+
+---
+
 *(পরবর্তী দিনের লগগুলো এখানে পর্যায়ক্রমে যোগ হবে)*
+
 
