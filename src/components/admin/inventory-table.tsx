@@ -70,57 +70,61 @@ export function InventoryTable({ initialItems }: InventoryTableProps) {
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search by SKU, product name, or variant..."
+            placeholder="Search SKU, product, or variant..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-foreground/20 transition-all"
           />
         </div>
 
-        {/* Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+        {/* Filter Pills with smooth horizontal touch scroll on mobile */}
+        <div className="-mx-4 px-4 sm:mx-0 sm:px-0 flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
           <button
+            type="button"
             onClick={() => setFilterStatus("ALL")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
               filterStatus === "ALL"
-                ? "bg-foreground text-background shadow-sm"
+                ? "bg-foreground text-background shadow-xs"
                 : "bg-muted/40 text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
             All SKUs ({items.length})
           </button>
           <button
+            type="button"
             onClick={() => setFilterStatus("LOW_STOCK")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
               filterStatus === "LOW_STOCK"
-                ? "bg-amber-500 text-white shadow-sm"
+                ? "bg-amber-500 text-white shadow-xs"
                 : "bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20"
             }`}
           >
-            <AlertTriangle className="w-3 h-3" />
-            Low Stock ({items.filter((i) => i.stockStatus === "LOW_STOCK").length})
+            <AlertTriangle className="w-3 h-3 shrink-0" />
+            <span>Low Stock ({items.filter((i) => i.stockStatus === "LOW_STOCK").length})</span>
           </button>
           <button
+            type="button"
             onClick={() => setFilterStatus("OUT_OF_STOCK")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
               filterStatus === "OUT_OF_STOCK"
-                ? "bg-rose-500 text-white shadow-sm"
+                ? "bg-rose-500 text-white shadow-xs"
                 : "bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20"
             }`}
           >
-            <XCircle className="w-3 h-3" />
-            Out of Stock ({items.filter((i) => i.stockStatus === "OUT_OF_STOCK").length})
+            <XCircle className="w-3 h-3 shrink-0" />
+            <span>Out of Stock ({items.filter((i) => i.stockStatus === "OUT_OF_STOCK").length})</span>
           </button>
           <button
+            type="button"
             onClick={() => setFilterStatus("HEALTHY")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
               filterStatus === "HEALTHY"
-                ? "bg-emerald-600 text-white shadow-sm"
+                ? "bg-emerald-600 text-white shadow-xs"
                 : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20"
             }`}
           >
-            <CheckCircle2 className="w-3 h-3" />
-            Healthy ({items.filter((i) => i.stockStatus === "HEALTHY").length})
+            <CheckCircle2 className="w-3 h-3 shrink-0" />
+            <span>Healthy ({items.filter((i) => i.stockStatus === "HEALTHY").length})</span>
           </button>
         </div>
       </div>
@@ -256,20 +260,21 @@ export function InventoryTable({ initialItems }: InventoryTableProps) {
       </div>
 
       {/* Mobile Stacked Card View (<768px: Zero Text-Wrapping & Clean Responsiveness) */}
-      <div className="md:hidden space-y-3">
+      <div className="md:hidden space-y-3.5">
         {filteredItems.length === 0 ? (
           <div className="p-8 text-center rounded-2xl border border-border bg-card text-muted-foreground">
             <Boxes className="w-8 h-8 mx-auto mb-2 opacity-40" />
-            <p className="text-xs">No inventory items found</p>
+            <p className="text-xs">No inventory items found matching your filter</p>
           </div>
         ) : (
           filteredItems.map((item) => (
             <div
               key={item.id}
-              className="p-4 rounded-2xl border border-border bg-card shadow-xs space-y-3"
+              className="p-4 rounded-2xl border border-border bg-card shadow-xs space-y-3.5"
             >
+              {/* Top Row: Thumbnail + Product/Variant Info + Status Badge */}
               <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
+                <div className="flex items-start gap-3 flex-1 min-w-0">
                   <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-border bg-muted/40 shrink-0">
                     {item.imageUrl ? (
                       <Image
@@ -285,72 +290,70 @@ export function InventoryTable({ initialItems }: InventoryTableProps) {
                       </div>
                     )}
                   </div>
-                  <div className="min-w-0">
-                    <h4 className="font-semibold text-xs text-foreground truncate">
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-xs sm:text-sm text-foreground leading-snug line-clamp-1">
                       {item.productName}
                     </h4>
-                    <p className="text-[11px] text-muted-foreground truncate">{item.variantName}</p>
-                    <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-muted/50 text-foreground border border-border inline-block mt-1">
-                      {item.sku}
-                    </span>
+                    <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                      {item.variantName}
+                    </p>
+                    <div className="mt-1">
+                      <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-muted/60 text-foreground border border-border font-medium inline-block">
+                        {item.sku}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Stock Status Badge */}
-                <div className="shrink-0 text-right">
+                {/* Status Badge */}
+                <div className="shrink-0 pt-0.5">
                   {item.stockStatus === "HEALTHY" && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 whitespace-nowrap">
                       Healthy
                     </span>
                   )}
                   {item.stockStatus === "LOW_STOCK" && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                    <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 whitespace-nowrap">
                       Low Stock
                     </span>
                   )}
                   {item.stockStatus === "OUT_OF_STOCK" && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+                    <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 whitespace-nowrap">
                       Out of Stock
                     </span>
                   )}
                 </div>
               </div>
 
-              {/* Metrics Row */}
-              <div className="grid grid-cols-3 gap-2 py-2 px-3 rounded-xl bg-muted/30 border border-border/60 text-center">
-                <div>
-                  <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
-                    Category
-                  </div>
-                  <div className="text-xs font-medium text-foreground truncate mt-0.5">
-                    {item.categoryName}
-                  </div>
+              {/* Middle Metrics Row: Clean Key-Value Pairs (Never Truncates Categories!) */}
+              <div className="space-y-1.5 py-2.5 px-3.5 rounded-xl bg-muted/30 border border-border/60 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-[11px]">Category:</span>
+                  <span className="font-semibold text-foreground text-right">{item.categoryName}</span>
                 </div>
-                <div>
-                  <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
-                    Unit Price
-                  </div>
-                  <div className="text-xs font-mono font-bold text-foreground mt-0.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground text-[11px]">Unit Price:</span>
+                  <span className="font-mono font-bold text-foreground">
                     ${(item.price / 100).toFixed(2)}
-                  </div>
+                  </span>
                 </div>
-                <div>
-                  <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
-                    In Stock
-                  </div>
-                  <div className="text-xs font-mono font-bold text-foreground mt-0.5">
-                    {item.stockQuantity} <span className="text-[10px] text-muted-foreground">units</span>
-                  </div>
+                <div className="flex items-center justify-between pt-1 border-t border-border/40">
+                  <span className="text-muted-foreground text-[11px]">Current Stock:</span>
+                  <span className="font-mono font-bold text-foreground">
+                    {item.stockQuantity}{" "}
+                    <span className="text-[10px] text-muted-foreground font-normal">units</span>
+                  </span>
                 </div>
               </div>
 
-              {/* Quick Adjust Button */}
+              {/* Action Button */}
               <button
+                type="button"
                 onClick={() => setSelectedItemForAdjust(item)}
-                className="w-full py-2.5 rounded-xl text-xs font-bold bg-foreground text-background flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+                className="w-full py-2.5 rounded-xl text-xs font-bold bg-foreground text-background flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-all shadow-xs"
               >
-                <Boxes className="w-3.5 h-3.5" />
-                Adjust Stock Units
+                <Boxes className="w-3.5 h-3.5 shrink-0" />
+                <span>Adjust Stock Units</span>
               </button>
             </div>
           ))

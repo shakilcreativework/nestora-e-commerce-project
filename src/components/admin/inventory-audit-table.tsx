@@ -83,12 +83,12 @@ export function InventoryAuditTable({ logs }: InventoryAuditTableProps) {
         </div>
 
         {/* Reason selector */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <Filter className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
           <select
             value={reasonFilter}
             onChange={(e) => setReasonFilter(e.target.value)}
-            className="py-1.5 px-3 rounded-xl bg-card border border-border text-xs text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-foreground/20"
+            className="w-full sm:w-auto py-2 sm:py-1.5 px-3 rounded-xl bg-card border border-border text-xs text-foreground font-medium focus:outline-none focus:ring-2 focus:ring-foreground/20"
           >
             <option value="ALL">All Reasons ({logs.length})</option>
             <option value="RESTOCK">Restock</option>
@@ -211,7 +211,7 @@ export function InventoryAuditTable({ logs }: InventoryAuditTableProps) {
       </div>
 
       {/* Mobile Stacked Card View (<768px: Zero Text-Wrapping & Clean Responsiveness) */}
-      <div className="md:hidden space-y-3">
+      <div className="md:hidden space-y-3.5">
         {filteredLogs.length === 0 ? (
           <div className="p-8 text-center rounded-2xl border border-border bg-card text-muted-foreground">
             <History className="w-8 h-8 mx-auto mb-2 opacity-40" />
@@ -230,17 +230,19 @@ export function InventoryAuditTable({ logs }: InventoryAuditTableProps) {
             return (
               <div
                 key={log.id}
-                className="p-4 rounded-2xl border border-border bg-card shadow-xs space-y-2.5"
+                className="p-4 rounded-2xl border border-border bg-card shadow-xs space-y-3"
               >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <h4 className="font-semibold text-xs text-foreground truncate">{log.productName}</h4>
-                    <p className="text-[11px] text-muted-foreground truncate">{log.variantName}</p>
-                    <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-muted/60 text-foreground border border-border inline-block mt-1">
-                      {log.sku}
-                    </span>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-xs sm:text-sm text-foreground leading-snug line-clamp-1">{log.productName}</h4>
+                    <p className="text-[11px] text-muted-foreground truncate mt-0.5">{log.variantName}</p>
+                    <div className="mt-1">
+                      <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-muted/60 text-foreground border border-border inline-block font-medium">
+                        {log.sku}
+                      </span>
+                    </div>
                   </div>
-                  <div>{getReasonBadge(log.reason)}</div>
+                  <div className="shrink-0 pt-0.5">{getReasonBadge(log.reason)}</div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 py-2 px-3 rounded-xl bg-muted/30 border border-border/60 text-center">
