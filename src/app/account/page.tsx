@@ -5,8 +5,9 @@ import { StorefrontHeader } from "@/components/navigation/storefront-header";
 import { StorefrontFooter } from "@/components/navigation/storefront-footer";
 import { AccountClientView, CustomerOrder } from "@/components/account/account-client-view";
 import { db } from "@/lib/db";
-import { orders, orderItems } from "@/lib/db/schema";
+import { orders, orderItems, addresses } from "@/lib/db/schema";
 import { eq, desc, inArray } from "drizzle-orm";
+import type { CustomerSavedAddress } from "@/lib/actions/customer";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +43,27 @@ export default async function AccountPage() {
     list.push(item);
     itemMap.set(item.orderId, list);
   }
+
+  // 3. Fetch customer's saved addresses
+  const savedAddressesRows = await db
+    .select()
+    .from(addresses)
+    .where(eq(addresses.userId, user.id))
+    .orderBy(desc(addresses.isDefault), desc(addresses.createdAt));
+
+  const initialAddresses: CustomerSavedAddress[] = savedAddressesRows.map((a) => ({
+    id: a.id,
+    fullName: a.fullName,
+    addressLine1: a.addressLine1,
+    addressLine2: a.addressLine2,
+    city: a.city,
+    stateProvince: a.stateProvince,
+    postalCode: a.postalCode,
+    country: a.country,
+    phone: a.phone,
+    isDefault: a.isDefault,
+    createdAt: a.createdAt.toISOString(),
+  }));
 
   const typedUser = user as typeof user & { role?: string; phone?: string | null };
 
@@ -84,6 +106,7 @@ export default async function AccountPage() {
             createdAt: typedUser.createdAt ? new Date(typedUser.createdAt).toISOString() : null,
           }}
           initialOrders={initialOrders}
+          initialAddresses={initialAddresses}
         />
       </main>
 

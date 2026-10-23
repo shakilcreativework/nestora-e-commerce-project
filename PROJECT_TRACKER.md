@@ -94,8 +94,8 @@ approval and the manual Git outcome are recorded.
   NESTORA-043   Implement wishlist              COMPLETED     NESTORA-023,          Pass       Approved   Pushed    Commit 84da67b
                                                               NESTORA-022                                (84da67b)  (Oct 23)  Redux wishlist + /wishlist page
 
-  NESTORA-044   Implement profile and saved     NOT_STARTED   NESTORA-023,                    Pending    Not       
-                addresses                                     NESTORA-022                                started   
+  NESTORA-044   Implement profile and saved     COMPLETED     NESTORA-023,       Pass         Approved   Awaiting  Customer profile edit,
+                addresses                                     NESTORA-022                                 Review    saved addresses CRUD, /checkout auto-fill
 
   NESTORA-050   Specify shipping/currency       COMPLETED     NESTORA-000        Pass         Approved   Manual    Free over $150, USD
                 assumptions                                                                              started   

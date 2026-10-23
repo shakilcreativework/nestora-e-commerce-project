@@ -24,7 +24,9 @@ import {
   Sparkles,
   Tag,
   X,
+  MapPin,
 } from "lucide-react";
+import type { CustomerSavedAddress } from "@/lib/actions/customer";
 
 interface CheckoutViewProps {
   initialUser: {
@@ -32,9 +34,10 @@ interface CheckoutViewProps {
     email?: string | null;
     phone?: string | null;
   } | null;
+  savedAddresses?: CustomerSavedAddress[];
 }
 
-export function CheckoutView({ initialUser }: CheckoutViewProps) {
+export function CheckoutView({ initialUser, savedAddresses = [] }: CheckoutViewProps) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const cartItems = useAppSelector(selectCartItems);
@@ -51,6 +54,23 @@ export function CheckoutView({ initialUser }: CheckoutViewProps) {
   const [country, setCountry] = useState("United States");
   const [shippingMethod, setShippingMethod] = useState<"STANDARD" | "EXPRESS">("STANDARD");
   const [customerNote, setCustomerNote] = useState("");
+
+  // Auto-populate default saved address if available
+  useEffect(() => {
+    if (savedAddresses && savedAddresses.length > 0 && !address) {
+      const defaultAddr = savedAddresses.find((a) => a.isDefault) || savedAddresses[0];
+      if (defaultAddr) {
+        setFullName(defaultAddr.fullName);
+        setPhone(defaultAddr.phone);
+        setAddress(defaultAddr.addressLine1);
+        setApartment(defaultAddr.addressLine2 || "");
+        setCity(defaultAddr.city);
+        setStateProvince(defaultAddr.stateProvince);
+        setPostalCode(defaultAddr.postalCode);
+        setCountry(defaultAddr.country);
+      }
+    }
+  }, [savedAddresses]);
 
   // Promo code state
   const [couponInput, setCouponInput] = useState("");
@@ -271,6 +291,60 @@ export function CheckoutView({ initialUser }: CheckoutViewProps) {
               </span>
               Shipping Address
             </h2>
+
+            {/* Saved Addresses 1-Click Auto-Fill */}
+            {savedAddresses && savedAddresses.length > 0 && (
+              <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-primary" />
+                    Saved Addresses
+                  </span>
+                  <span className="text-[10px] text-muted-foreground font-medium">1-Click Fast Fill</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {savedAddresses.map((addr) => {
+                    const isSelected =
+                      address.toLowerCase() === addr.addressLine1.toLowerCase() &&
+                      postalCode === addr.postalCode;
+                    return (
+                      <button
+                        key={addr.id}
+                        type="button"
+                        onClick={() => {
+                          setFullName(addr.fullName);
+                          setPhone(addr.phone);
+                          setAddress(addr.addressLine1);
+                          setApartment(addr.addressLine2 || "");
+                          setCity(addr.city);
+                          setStateProvince(addr.stateProvince);
+                          setPostalCode(addr.postalCode);
+                          setCountry(addr.country);
+                        }}
+                        className={`p-2.5 rounded-xl border text-left transition-all ${
+                          isSelected
+                            ? "border-primary bg-primary/10 shadow-xs ring-1 ring-primary/20"
+                            : "border-border/80 bg-background hover:border-foreground/30"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="font-bold text-xs text-foreground truncate">{addr.fullName}</span>
+                          {addr.isDefault && (
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 whitespace-nowrap">
+                              Default
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                          {addr.addressLine1}
+                          {addr.addressLine2 ? `, ${addr.addressLine2}` : ""}, {addr.city}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5 sm:col-span-2">

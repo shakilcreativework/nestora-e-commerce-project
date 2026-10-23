@@ -249,3 +249,22 @@ export const inventoryAuditLogs = pgTable("inventory_audit_logs", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Customer Saved Addresses (NESTORA-044)
+export const addresses = pgTable("addresses", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  fullName: text("full_name").notNull(),
+  addressLine1: text("address_line1").notNull(),
+  addressLine2: text("address_line2"),
+  city: text("city").notNull(),
+  stateProvince: text("state_province").notNull(),
+  postalCode: text("postal_code").notNull(),
+  country: text("country").default("US").notNull(),
+  phone: text("phone").notNull(),
+  isDefault: boolean("is_default").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+

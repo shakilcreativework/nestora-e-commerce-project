@@ -22,7 +22,18 @@ import {
   X,
   CreditCard,
   ShieldCheck,
+  Pencil,
+  Trash2,
+  Plus,
+  Star,
 } from "lucide-react";
+import {
+  type CustomerSavedAddress,
+  deleteCustomerAddress,
+  setDefaultCustomerAddress,
+} from "@/lib/actions/customer";
+import { AddressModal } from "./address-modal";
+import { ProfileEditModal } from "./profile-edit-modal";
 
 export interface OrderItemSnapshot {
   id: string;
@@ -70,15 +81,28 @@ interface AccountUser {
 interface AccountClientViewProps {
   user: AccountUser;
   initialOrders: CustomerOrder[];
+  initialAddresses?: CustomerSavedAddress[];
 }
 
-export function AccountClientView({ user, initialOrders }: AccountClientViewProps) {
+export function AccountClientView({
+  user,
+  initialOrders,
+  initialAddresses = [],
+}: AccountClientViewProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"overview" | "orders" | "profile">("overview");
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<CustomerOrder | null>(null);
 
-  const isAdmin = user.role === "ADMIN";
+  // Profile & Address states (NESTORA-044)
+  const [currentUser, setCurrentUser] = useState<AccountUser>(user);
+  const [addressesList, setAddressesList] = useState<CustomerSavedAddress[]>(initialAddresses);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<CustomerSavedAddress | null>(null);
+  const [isActionLoadingId, setIsActionLoadingId] = useState<string | null>(null);
+
+  const isAdmin = currentUser.role === "ADMIN";
 
   const handleSignOut = async () => {
     setIsLoggingOut(true);
@@ -90,6 +114,67 @@ export function AccountClientView({ user, initialOrders }: AccountClientViewProp
       console.error("Sign out failed:", err);
       setIsLoggingOut(false);
     }
+  };
+
+  const handleSetDefaultAddress = async (id: string) => {
+    setIsActionLoadingId(id);
+    // Optimistic update
+    setAddressesList((prev) =>
+      prev.map((addr) => ({
+        ...addr,
+        isDefault: addr.id === id,
+      }))
+    );
+
+    try {
+      await setDefaultCustomerAddress(id);
+    } catch (err) {
+      console.error("Failed to set default address:", err);
+    } finally {
+      setIsActionLoadingId(null);
+    }
+  };
+
+  const handleDeleteAddress = async (id: string) => {
+    if (!confirm("Are you sure you want to remove this saved address?")) return;
+    setIsActionLoadingId(id);
+    // Optimistic remove
+    setAddressesList((prev) => prev.filter((addr) => addr.id !== id));
+
+    try {
+      await deleteCustomerAddress(id);
+    } catch (err) {
+      console.error("Failed to delete address:", err);
+    } finally {
+      setIsActionLoadingId(null);
+    }
+  };
+
+  const handleAddressSaved = (savedAddr: CustomerSavedAddress) => {
+    setAddressesList((prev) => {
+      const exists = prev.some((a) => a.id === savedAddr.id);
+      let updated: CustomerSavedAddress[];
+      if (exists) {
+        updated = prev.map((a) => (a.id === savedAddr.id ? savedAddr : a));
+      } else {
+        updated = [savedAddr, ...prev];
+      }
+
+      if (savedAddr.isDefault) {
+        return updated.map((a) =>
+          a.id === savedAddr.id ? a : { ...a, isDefault: false }
+        );
+      }
+      return updated;
+    });
+  };
+
+  const handleProfileSaved = (newName: string, newPhone: string | null) => {
+    setCurrentUser((prev) => ({
+      ...prev,
+      name: newName,
+      phone: newPhone,
+    }));
   };
 
   const formattedJoinDate = user.createdAt
@@ -121,7 +206,7 @@ export function AccountClientView({ user, initialOrders }: AccountClientViewProp
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10">
           <div className="flex items-center gap-4 sm:gap-6">
             <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-primary/10 text-primary flex items-center justify-center font-serif text-2xl sm:text-3xl font-bold shadow-inner border border-primary/20">
-              {user.name
+              {currentUser.name
                 .split(" ")
                 .map((n) => n[0])
                 .join("")
@@ -131,7 +216,7 @@ export function AccountClientView({ user, initialOrders }: AccountClientViewProp
             <div className="space-y-1">
               <div className="flex items-center gap-2.5 flex-wrap">
                 <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-                  {user.name}
+                  {currentUser.name}
                 </h1>
                 {isAdmin ? (
                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
@@ -384,73 +469,211 @@ export function AccountClientView({ user, initialOrders }: AccountClientViewProp
         </div>
       )}
 
-      {/* Tab 3: Profile & Address */}
+      {/* Tab 3: Profile & Address (NESTORA-044) */}
       {activeTab === "profile" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="rounded-2xl bg-card border border-border/80 p-6 space-y-4">
-            <h2 className="font-serif text-lg font-bold text-foreground flex items-center gap-2">
-              <User className="w-4 h-4 text-primary" />
-              Personal Details
-            </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          {/* Personal Details Card */}
+          <div className="rounded-2xl bg-card border border-border/80 p-6 space-y-5 shadow-xs">
+            <div className="flex items-center justify-between pb-3 border-b border-border">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-primary/10 text-primary border border-primary/20">
+                  <User className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="font-serif text-base sm:text-lg font-bold text-foreground">
+                    Personal Profile
+                  </h2>
+                  <p className="text-[11px] text-muted-foreground">Manage your customer credentials</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsProfileModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border border-border bg-background hover:bg-muted text-foreground transition-all shadow-2xs"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                <span>Edit Profile</span>
+              </button>
+            </div>
+
             <div className="space-y-3 text-xs sm:text-sm">
-              <div className="p-3.5 rounded-xl bg-muted/40 border border-border/50">
-                <span className="text-[11px] font-medium text-muted-foreground block">Full Name</span>
-                <span className="font-semibold text-foreground">{user.name}</span>
+              <div className="p-3.5 rounded-xl bg-muted/30 border border-border/50">
+                <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground block">
+                  Full Name
+                </span>
+                <span className="font-semibold text-foreground text-sm mt-0.5 block">
+                  {currentUser.name}
+                </span>
               </div>
-              <div className="p-3.5 rounded-xl bg-muted/40 border border-border/50">
-                <span className="text-[11px] font-medium text-muted-foreground block">Email Address</span>
-                <span className="font-semibold text-foreground">{user.email}</span>
+
+              <div className="p-3.5 rounded-xl bg-muted/30 border border-border/50 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground block">
+                    Email Address
+                  </span>
+                  <span className="font-semibold text-foreground text-sm mt-0.5 block">
+                    {currentUser.email}
+                  </span>
+                </div>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+                  Verified
+                </span>
               </div>
-              <div className="p-3.5 rounded-xl bg-muted/40 border border-border/50">
-                <span className="text-[11px] font-medium text-muted-foreground block">Phone Number</span>
-                <span className="font-semibold text-foreground">{user.phone || "Not provided"}</span>
+
+              <div className="p-3.5 rounded-xl bg-muted/30 border border-border/50">
+                <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground block">
+                  Contact Phone
+                </span>
+                <span className="font-semibold text-foreground text-sm mt-0.5 block">
+                  {currentUser.phone || "No phone number added"}
+                </span>
               </div>
-              <div className="p-3.5 rounded-xl bg-muted/40 border border-border/50">
-                <span className="text-[11px] font-medium text-muted-foreground block">Account Role</span>
-                <span className="font-semibold text-foreground uppercase text-xs">{user.role}</span>
+
+              <div className="p-3.5 rounded-xl bg-muted/30 border border-border/50 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground block">
+                    Membership Tier
+                  </span>
+                  <span className="font-semibold text-foreground text-sm mt-0.5 block">
+                    {isAdmin ? "Administrator" : "Atelier Collector"}
+                  </span>
+                </div>
+                <span className="font-mono text-xs text-muted-foreground">
+                  Since {formattedJoinDate}
+                </span>
               </div>
             </div>
           </div>
 
-          <div className="rounded-2xl bg-card border border-border/80 p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="font-serif text-lg font-bold text-foreground flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-primary" />
-                Shipping Addresses
-              </h2>
-              <span className="text-[11px] text-muted-foreground">Default shipping</span>
+          {/* Saved Addresses Card */}
+          <div className="rounded-2xl bg-card border border-border/80 p-6 space-y-5 shadow-xs">
+            <div className="flex items-center justify-between pb-3 border-b border-border">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-xl bg-primary/10 text-primary border border-primary/20">
+                  <MapPin className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="font-serif text-base sm:text-lg font-bold text-foreground">
+                    Saved Addresses
+                  </h2>
+                  <p className="text-[11px] text-muted-foreground">
+                    {addressesList.length} {addressesList.length === 1 ? "address" : "addresses"} on file
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingAddress(null);
+                  setIsAddressModalOpen(true);
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-foreground text-background hover:opacity-90 active:scale-[0.99] transition-all shadow-2xs"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add Address</span>
+              </button>
             </div>
 
-            {initialOrders.length > 0 && initialOrders[0].shippingAddress ? (
-              <div className="p-4 rounded-xl bg-muted/30 border border-border/60 text-xs sm:text-sm space-y-1">
-                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-primary/10 text-primary uppercase inline-block mb-1">
-                  Latest Shipping Address
-                </span>
-                <p className="font-semibold text-foreground">
-                  {initialOrders[0].shippingAddress.fullName}
-                </p>
-                <p className="text-muted-foreground">
-                  {initialOrders[0].shippingAddress.address}{" "}
-                  {initialOrders[0].shippingAddress.apartment &&
-                    `, ${initialOrders[0].shippingAddress.apartment}`}
-                </p>
-                <p className="text-muted-foreground">
-                  {initialOrders[0].shippingAddress.city},{" "}
-                  {initialOrders[0].shippingAddress.stateProvince}{" "}
-                  {initialOrders[0].shippingAddress.postalCode}
-                </p>
-                <p className="text-muted-foreground">{initialOrders[0].shippingAddress.country}</p>
-                <p className="pt-1 text-[11px] text-muted-foreground font-mono">
-                  Phone: {initialOrders[0].shippingAddress.phone}
-                </p>
+            {/* Address List */}
+            {addressesList.length === 0 ? (
+              <div className="p-8 rounded-2xl border border-dashed border-border text-center space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-muted/50 text-muted-foreground flex items-center justify-center mx-auto">
+                  <MapPin className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-xs sm:text-sm font-bold text-foreground">No saved addresses yet</p>
+                  <p className="text-xs text-muted-foreground max-w-xs mx-auto mt-0.5">
+                    Save your delivery locations to experience expedited, 1-click checkout.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingAddress(null);
+                    setIsAddressModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-foreground text-background hover:opacity-90 transition-all shadow-xs"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Add Shipping Address
+                </button>
               </div>
             ) : (
-              <div className="p-8 rounded-xl border border-dashed border-border text-center space-y-2">
-                <MapPin className="w-8 h-8 text-muted-foreground/60 mx-auto" />
-                <p className="text-xs font-semibold text-foreground">No saved addresses</p>
-                <p className="text-[11px] text-muted-foreground">
-                  Your shipping address is automatically remembered whenever you checkout.
-                </p>
+              <div className="space-y-3">
+                {addressesList.map((addr) => (
+                  <div
+                    key={addr.id}
+                    className={`p-4 rounded-2xl border transition-all space-y-3 ${
+                      addr.isDefault
+                        ? "border-emerald-500/40 bg-emerald-500/5 dark:bg-emerald-950/10 shadow-xs"
+                        : "border-border/80 bg-muted/20 hover:border-border"
+                    }`}
+                  >
+                    {/* Header: Name + Default Pill / Action */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <h4 className="font-bold text-sm text-foreground">{addr.fullName}</h4>
+                        <span className="font-mono text-[11px] text-muted-foreground block mt-0.5">
+                          {addr.phone}
+                        </span>
+                      </div>
+                      <div>
+                        {addr.isDefault ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 whitespace-nowrap">
+                            <CheckCircle2 className="w-3 h-3" />
+                            Default
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleSetDefaultAddress(addr.id)}
+                            disabled={isActionLoadingId === addr.id}
+                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold text-muted-foreground hover:text-foreground hover:bg-muted border border-border/80 transition-all whitespace-nowrap"
+                          >
+                            <Star className="w-3 h-3 text-muted-foreground" />
+                            Make Default
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Address Body */}
+                    <div className="text-xs text-muted-foreground space-y-0.5 leading-relaxed">
+                      <p className="text-foreground font-medium">
+                        {addr.addressLine1}
+                        {addr.addressLine2 ? `, ${addr.addressLine2}` : ""}
+                      </p>
+                      <p>
+                        {addr.city}, {addr.stateProvince} {addr.postalCode}
+                      </p>
+                      <p>{addr.country}</p>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-border/50">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingAddress(addr);
+                          setIsAddressModalOpen(true);
+                        }}
+                        className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                        <span>Edit</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteAddress(addr.id)}
+                        disabled={isActionLoadingId === addr.id}
+                        className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Delete</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -611,6 +834,27 @@ export function AccountClientView({ user, initialOrders }: AccountClientViewProp
           </div>
         </div>
       )}
+
+      {/* Edit Profile Modal (NESTORA-044) */}
+      <ProfileEditModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        onSaved={handleProfileSaved}
+        initialName={currentUser.name}
+        initialPhone={currentUser.phone}
+        email={currentUser.email}
+      />
+
+      {/* Address Create / Edit Modal (NESTORA-044) */}
+      <AddressModal
+        isOpen={isAddressModalOpen}
+        onClose={() => {
+          setIsAddressModalOpen(false);
+          setEditingAddress(null);
+        }}
+        onSaved={handleAddressSaved}
+        initialData={editingAddress}
+      />
     </div>
   );
 }
