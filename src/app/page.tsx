@@ -3,12 +3,9 @@ import Image from "next/image";
 import { db } from "@/lib/db";
 import { categories, products, productImages } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { UserNav } from "@/components/navigation/user-nav";
-import { MobileMenu } from "@/components/navigation/mobile-menu";
-import { CartButton } from "@/components/navigation/cart-button";
+import { StorefrontHeader } from "@/components/navigation/storefront-header";
+import { StorefrontFooter } from "@/components/navigation/storefront-footer";
 import { ProductCard } from "@/components/products/product-card";
-import { NewsletterForm } from "@/components/ui/newsletter-form";
 import {
   ShoppingBag,
   Heart,
@@ -70,66 +67,7 @@ export default async function Home() {
       </div>
 
       {/* Main Navigation Header */}
-      <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-[var(--background)]/90 border-b border-black/5 dark:border-white/10 transition-colors duration-200">
-        <div className="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:max-w-[1500px] h-16 sm:h-20 flex items-center justify-between gap-2 sm:gap-6">
-          {/* Left: Mobile Drawer Trigger & Brand Logo */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            <MobileMenu cartCount={0} />
-
-            <Link href="/" className="flex items-center gap-2 sm:gap-3 group">
-              <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl bg-[#264E3A] dark:bg-[#478466] flex items-center justify-center text-white font-serif font-bold text-base sm:text-xl shadow-xs shrink-0 group-hover:opacity-90 transition-opacity">
-                N
-              </div>
-              <div className="flex flex-col">
-                <span className="font-serif text-lg xs:text-xl sm:text-2xl font-bold tracking-tight text-[var(--foreground)]">
-                  NESTORA
-                </span>
-                <span className="text-[10px] sm:text-xs tracking-widest uppercase text-[var(--muted-text)] font-mono -mt-1 hidden sm:block">
-                  Home & Lifestyle
-                </span>
-              </div>
-            </Link>
-          </div>
-
-          {/* Center: Search Bar (Desktop only) */}
-          <div className="hidden md:flex items-center flex-1 max-w-md mx-4">
-            <div className="relative w-full">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--muted-text)]" />
-              <input
-                type="text"
-                placeholder="Search organizers, lighting, ceramics..."
-                readOnly
-                className="w-full pl-10 pr-4 py-2 text-sm rounded-full bg-black/[0.04] dark:bg-white/[0.05] border border-black/5 dark:border-white/10 text-[var(--foreground)] placeholder:text-[var(--muted-text)] focus:outline-none transition-colors"
-              />
-            </div>
-          </div>
-
-          {/* Right: Actions */}
-          <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-4 shrink-0">
-            {/* Theme Toggle (Desktop only) */}
-            <div className="hidden md:flex">
-              <ThemeToggle />
-            </div>
-
-            {/* Wishlist Button (Desktop only) */}
-            <Link
-              href="/wishlist"
-              aria-label="Wishlist"
-              className="hidden md:flex p-2 sm:p-2.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-[var(--foreground)] transition-colors relative"
-            >
-              <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--muted-text)] hover:text-red-500 transition-colors" />
-            </Link>
-
-            {/* Cart Button with live Redux count & slide-over drawer trigger */}
-            <CartButton />
-
-            {/* User Account Navigation (Desktop only) */}
-            <div className="hidden md:flex">
-              <UserNav />
-            </div>
-          </div>
-        </div>
-      </header>
+      <StorefrontHeader />
 
       {/* Ultra-Premium Hero Showcase Section */}
       <section className="relative overflow-hidden py-10 sm:py-16 md:py-20 lg:py-24 px-4 xs:px-5 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:max-w-[1500px] mx-auto w-full">
@@ -420,96 +358,7 @@ export default async function Home() {
       </section>
 
       {/* E-Commerce Footer */}
-      <footer className="w-full bg-[var(--background)] border-t border-black/5 dark:border-white/10 pt-10 xs:pt-12 pb-8">
-        <div className="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 2xl:max-w-[1500px]">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-8 xl:gap-10 pb-10 border-b border-black/5 dark:border-white/10">
-            {/* Brand column */}
-            <div className="space-y-3 sm:col-span-2 lg:col-span-4 max-w-sm">
-              <div className="flex items-center gap-2.5">
-                <div className="h-8 w-8 rounded-lg bg-[#264E3A] dark:bg-[#478466] flex items-center justify-center text-white font-serif font-bold text-base shadow-xs">
-                  N
-                </div>
-                <span className="font-serif text-lg font-bold tracking-tight text-[var(--foreground)]">
-                  NESTORA
-                </span>
-              </div>
-              <p className="text-xs text-[var(--muted-text)] leading-relaxed">
-                A single-vendor home and lifestyle atelier dedicated to ergonomic calmness,
-                architectural lighting, and intentional everyday objects.
-              </p>
-            </div>
-
-            {/* Collections */}
-            <div className="space-y-2.5 sm:col-span-1 lg:col-span-2">
-              <p className="text-xs font-bold uppercase tracking-wider text-[var(--foreground)]">
-                Collections
-              </p>
-              <ul className="space-y-1.5 text-xs text-[var(--muted-text)]">
-                <li>
-                  <Link href="/category/workspace" className="hover:text-[var(--foreground)] transition-colors">
-                    Desk & Workspace
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/category/lighting" className="hover:text-[var(--foreground)] transition-colors">
-                    Ambient Lighting
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/category/ceramics" className="hover:text-[var(--foreground)] transition-colors">
-                    Handcrafted Ceramics
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/category/storage" className="hover:text-[var(--foreground)] transition-colors">
-                    Minimal Storage
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Customer Care */}
-            <div className="space-y-2.5 sm:col-span-1 lg:col-span-2">
-              <p className="text-xs font-bold uppercase tracking-wider text-[var(--foreground)]">
-                Customer Care
-              </p>
-              <ul className="space-y-1.5 text-xs text-[var(--muted-text)]">
-                <li>
-                  <Link href="/shipping" className="hover:text-[var(--foreground)] transition-colors">
-                    Shipping & Dispatch
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/returns" className="hover:text-[var(--foreground)] transition-colors">
-                    30-Day Returns Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contact" className="hover:text-[var(--foreground)] transition-colors">
-                    Support & Atelier Contact
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Newsletter */}
-            <div className="space-y-2.5 sm:col-span-2 lg:col-span-4">
-              <p className="text-xs font-bold uppercase tracking-wider text-[var(--foreground)]">
-                Newsletter
-              </p>
-              <p className="text-xs text-[var(--muted-text)]">
-                Receive release notes for seasonal small-batch productions.
-              </p>
-              <NewsletterForm />
-            </div>
-          </div>
-
-          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[var(--muted-text)]">
-            <p>© {new Date().getFullYear()} NESTORA Atelier Inc. All rights reserved.</p>
-            <p className="font-mono text-[11px]">Next.js 16 • PostgreSQL • Drizzle ORM • Better Auth</p>
-          </div>
-        </div>
-      </footer>
+      <StorefrontFooter />
     </main>
   );
 }

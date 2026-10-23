@@ -77,8 +77,8 @@ approval and the manual Git outcome are recorded.
   NESTORA-035   Add                             NOT_STARTED   NESTORA-033                     Pending    Not       
                 search/filter/sort/pagination                                                            started   
 
-  NESTORA-036   Build product detail page       NOT_STARTED   NESTORA-031,                    Pending    Not       
-                                                              NESTORA-022                                started   
+  NESTORA-036   Build product detail page       AWAITING_HUMAN_REVIEW NESTORA-031,          Pass       Pending    Manual    Dynamic PDP +
+                                                              NESTORA-022                                review     push ready gallery + Redux
 
   NESTORA-037   Add metadata and basic SEO      NOT_STARTED   NESTORA-032,                    Pending    Not       
                                                               NESTORA-033,                               started   

@@ -581,4 +581,50 @@ Building with a strict human-in-the-loop review process and zero auto-pushes. Ex
 
 ---
 
+## 🏛️ Day 4: Architectural Product Detail Page (PDP) & Reusable Storefront Shell (NESTORA-036)
+- **তারিখ:** ২৩ অক্টোবর, ২০২৬
+- **স্ট্যাটাস:** Completed & Verified (Build Passed 100%)
+- **মূল লক্ষ্য:** ডেডিকেটেড ডাইনামিক প্রোডাক্ট ডিটেইল রুট (`/product/[slug]`), মাল্টি-ইমেজ গ্যালারি থাম্বনেইল ভিউয়ার, রিডাক্স কোয়ান্টিটি সিলেক্টর, লাইভ স্টক ইন্ডিকেটর, স্টিকি মোবাইল বাই-বার, এবং রিইউজেবল হেডার/ফুটার আর্কিটেকচার তৈরি করা।
+
+### 🧠 আর্কিটেকচারাল সমাধান ও টিম-টপার কনসেপ্টস:
+1. **DRY Storefront Architecture (`src/components/navigation/storefront-header.tsx` & `storefront-footer.tsx`):**
+   - পূর্বে হোমপেজে প্রায় ২০০ লাইনের ইনলাইন হেডার ও ফুটার কোড ছিল। এটিকে মডুলার কম্পোনেন্টে নিয়ে আসা হয়েছে।
+   - এর ফলে হোমপেজ, প্রোডাক্ট পেজ, ক্যাটালগ পেজ—সব জায়গায় একই ব্র্যান্ডিং, ডার্ক/লাইট থিম টগল এবং লাইভ রিডাক্স কার্ট কাউন্টার নিখুঁতভাবে সিঙ্ক থাকে।
+2. **Dynamic RSC + Drizzle ORM Data Layer (`src/app/product/[slug]/page.tsx`):**
+   - সম্পূর্ণ **React Server Component (RSC)** হিসেবে রান করে সরাসরি PostgreSQL ডাটাবেজ থেকে ডাটা ফেচ করে।
+   - **Admin Approval Rule Enforced:** কেবলমাত্র `status = 'ACTIVE'` এবং `isApproved = true` পণ্যগুলোই রেন্ডার হবে। কোনো ড্রাফট বা আন-অ্যাপ্রুভড স্লাগ হিট করলে স্বয়ংক্রিয়ভাবে `notFound()` (404) ট্রিগার করবে।
+   - **Dynamic SEO Metadata:** `generateMetadata()` দিয়ে প্রতি পণ্যের নিজস্ব এসইও টাইটেল ও মেটা ডেসক্রিপশন জেনারেট হয়।
+   - **Cross-Sell / Related Products:** একই ক্যাটাগরির অন্য ৪টি পণ্যের রিলেটেড সেকশন স্বয়ংক্রিয়ভাবে লোড হয়।
+3. **High-Conversion Client Interaction Layer (`src/components/products/product-detail-view.tsx`):**
+   - **Interactive Multi-Image Gallery:** থাম্বনেইল ক্লিকে স্মুথ ইমেজ সুইচিং ও অ্যাক্টিভ রিং ইন্ডিকেটর।
+   - **Real-Time Stock Safeguard:** ভ্যারিয়েন্ট স্টক অনুযায়ী স্বয়ংক্রিয় লিমিট (`min 1, max stockQuantity`) এবং আউট-অব-স্টক স্টেট হ্যান্ডলিং।
+   - **Redux Cart Connection:** "Add to Bag" বাটন ক্লিকে পণ্যটি সরাসরি Redux গ্লোবাল স্টেটে যোগ হয় এবং মুহূর্তেই স্লাইড-ওভার **Cart Drawer** ওপেন হয়ে যায়।
+   - **Sticky Mobile Bottom Bar:** মোবাইল ডিভাইসে কাস্টমার যখন স্ক্রোল করে নিচে নেমে যায়, তখনও নিচে একটি স্টিকি ভাসমান "Add to Bag" বার থাকে যাতে কেনাকাটার অভিজ্ঞতা বাধাহীন হয়।
+   - **Accordion Information Tabs:** Story & Details, Craftsmanship & Care, এবং Shipping & Returns ট্যাব।
+
+### 🧪 ভেরিফিকেশন রেজাল্ট:
+- `npm run typecheck` ➔ **PASS** (০ টাইপ এরর)
+- `npm run build` ➔ **PASS** (Dynamic route `/product/[slug]` সফলভাবে অপ্টিমাইজড ও বিল্ড সম্পন্ন)
+
+### 📋 আপনার জন্য স্টেপ-বাই-স্টেপ চেকলিস্ট:
+1. আপনার টার্মিনালে লোকাল সার্ভার রান না থাকলে রান করুন:
+   ```bash
+   npm run dev
+   ```
+2. ব্রাউজারে `http://localhost:3000` এ যান এবং যেকোনো প্রোডাক্ট কার্ডে ক্লিক করুন (অথবা সরাসরি `http://localhost:3000/product/walnut-desk-organizer` এ যান)।
+3. টেস্ট করুন:
+   - থাম্বনেইল ক্লিক করে ইমেজ পরিবর্তন হচ্ছে কিনা দেখুন।
+   - কোয়ান্টিটি `+` এবং `-` চাপুন।
+   - **"Add to Bag"** বাটনে ক্লিক করুন—দেখবেন সাথে সাথে আপনার তৈরি করা লাক্সারি **Cart Drawer** ওপেন হয়ে গেছে এবং কার্ট সাবটোটাল আপডেট হয়েছে!
+   - পেজের নিচে স্ক্রোল করে দেখুন **"You May Also Like"** সেকশনে সম্পর্কিত পণ্যগুলো চমৎকার রেসপনসিভ গ্রিডে লোড হয়েছে।
+4. পরিবর্তনগুলো সন্তোষজনক হলে গিটহাবে ম্যানুয়ালি পুশ করুন:
+   ```bash
+   git add .
+   git commit -m "feat(pdp): implement dynamic product detail page, gallery viewer, and sticky mobile purchase bar"
+   git push origin main
+   ```
+
+---
+
 *(পরবর্তী দিনের লগগুলো এখানে পর্যায়ক্রমে যোগ হবে)*
+
