@@ -3,7 +3,7 @@ import Link from "next/link";
 import { requireUser } from "@/lib/auth-guard";
 import { StorefrontHeader } from "@/components/navigation/storefront-header";
 import { StorefrontFooter } from "@/components/navigation/storefront-footer";
-import { AccountClientView } from "./account-client-view";
+import { AccountClientView } from "@/components/account/account-client-view";
 import { db } from "@/lib/db";
 import { orders } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
