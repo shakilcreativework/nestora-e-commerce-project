@@ -715,6 +715,73 @@ Building with a strict human-in-the-loop review process and zero auto-pushes. Ex
 
 ---
 
+## 🛡️ Day 5: Protected Customer Account Portal & Executive Admin Dashboard (NESTORA-023, 024, 025)
+- **তারিখ:** ২৩ অক্টোবর, ২০২৬
+- **স্ট্যাটাস:** Completed & Verified (Build Passed 100%)
+- **মূল লক্ষ্য:** Better Auth ইন্টিগ্রেশন ভ্যালিডেশন, সার্ভার-সাইড RBAC গার্ডস (`requireUser`, `requireAdmin`), কাস্টমার অ্যাকাউন্ট পোর্টাল (`/account`) এবং লাইভ ডাটাবেজ মেট্রিক্স সহ এক্সিকিউটিভ অ্যাডমিন ড্যাশবোর্ড শেল (`/admin`) তৈরি করা।
+
+### 🧠 আর্কিটেকচারাল সমাধান ও টিম-টপার কনসেপ্টস:
+1. **Server-Side Security & Zero-Trust RBAC (`src/lib/auth-guard.ts`):**
+   - ক্লায়েন্ট সাইড বা UI লুকানোর ওপর ভরসা না করে সরাসরি Next.js Server Components-এ ইনকামিং রিকোয়েস্ট হেডার্স থেকে সেশন ভ্যালিডেট করা হয়েছে।
+   - **`requireUser(returnUrl)`:** কোনো আন-অথেন্টিকেটেড ইউজার `/account` ভিজিট করলে স্বয়ংক্রিয়ভাবে তাকে `/login?callbackUrl=/account`-এ রিডাইরেক্ট করে। লগইনের পর সে সরাসরি তার কাঙ্ক্ষিত পেজে ফিরে আসবে।
+   - **`requireAdmin(returnUrl)`:** সাধারণ কাস্টমাররা যদি কোনোভাবে `/admin` রুট এক্সেস করার চেষ্টা করে, তবে সাথে সাথে রিডাইরেক্ট হয়ে `forbidden` সিকিউরিটি হ্যান্ডলার ট্রিগার করবে।
+   - **Role Escalation Protection:** পাবলিক সাইন-আপে বডিতে `role: 'ADMIN'` পাঠালেও Better Auth-এর `input: false` কনফিগারেশন এটিকে সম্পূর্ণ ব্লক করে এবং রোল সবসময় `CUSTOMER` হিসেবে সেট থাকে।
+
+2. **Customer Account Portal (`/account` & `src/app/account/account-client-view.tsx`):**
+   - **Executive Header Banner:** ইউজারের নামের আদ্যক্ষর দিয়ে আর্ট অ্যাভাটার, মেম্বারশিপ সময়কাল এবং রোল ব্যাজ (`Customer` / `Admin`)।
+   - **Interactive Tabs:**
+     - **Overview:** লাইফটাইম অর্ডার সংখ্যা, উইশলিস্ট কুইক জাম্প এবং রিসেন্ট ট্রানজ্যাকশন সারাংশ।
+     - **Order History:** ডাটাবেজের `orders` টেবিল থেকে কাস্টমারের রিয়েল অর্ডার হিস্ট্রি, অর্ডার স্ট্যাটাস ও সামারি।
+     - **Profile & Address:** সেভড শিপিং এড্রেস এবং প্রোফাইল ডিটেইলস কার্ড।
+   - **Clean Sign-Out:** এক ক্লিকে সম্পূর্ণ সেশন টার্মিনেশন এবং হোমপেজে রিডাইরেক্ট।
+
+3. **Executive Admin Dashboard & Shell (`/admin`, `layout.tsx` & `admin-shell.tsx`):**
+   - **Live PostgreSQL Telemetry:** ড্যাশবোর্ডে প্রবেশের সাথে সাথে লাইভ ডাটাবেজ কোয়েরি রান হয়ে রিয়েল-টাইম পরিসংখ্যান দেখায়:
+     - টোটাল প্রোডাক্ট সংখ্যা এবং পাবলিক স্টোরফ্রন্টের জন্য অ্যাক্টিভ ও অ্যাপ্রুভড প্রোডাক্টের হিসাব।
+     - ক্যাটাগরি, অর্ডার ও মোট রেজিস্টার্ড অ্যাকাউন্টের লাইভ কাউন্টার।
+   - **Product Approval Snapshot:** কোন পণ্যগুলো লাইভ স্টোরে প্রদর্শিত হচ্ছে এবং কোনোটি পেন্ডিং অ্যাপ্রুভালে আছে কিনা তার রিয়েল-টাইম অডিট ভিউ।
+   - **Responsive Luxury Sidebar:** মোবাইল ডিভাইসে হ্যামবার্গার ড্রয়ার এবং ডেস্কটপে গ্লাস মরফিজম সাইডবার।
+   - **Direct Storefront Switcher:** এক ক্লিকে লাইভ স্টোরফ্রন্ট এবং অ্যাডমিন মোডের মধ্যে স্যুইচ করার ব্যবস্থা।
+
+4. **Admin Promotion Utility (`scripts/promote-admin.js`):**
+   - ডেভেলপমেন্ট ও টেস্টিংয়ের সুবিধার্থে কমান্ড লাইনের মাধ্যমে যেকোনো রেজিস্টার্ড ইউজারকে ইনস্ট্যান্ট অ্যাডমিনে রূপান্তর করার স্ক্রিপ্ট:
+     ```bash
+     npm run db:promote-admin your-email@example.com
+     ```
+
+### 🧪 ভেরিফিকেশন রেজাল্ট:
+- `npm run typecheck` ➔ **PASS** (০ টাইপ এরর)
+- `npm run build` ➔ **PASS** (`/account` এবং `/admin` ডায়নামিক সিকিউরড রুট হিসেবে বিল্ড সম্পন্ন)
+
+### 📋 আপনার জন্য স্টেপ-বাই-স্টেপ চেকলিস্ট:
+1. টার্মিনালে লোকাল সার্ভার রান না থাকলে রান করুন:
+   ```bash
+   npm run dev
+   ```
+2. টেস্ট করুন কাস্টমার সাইন-ইন ও অ্যাকাউন্ট পেজ:
+   - ব্রাউজারে [http://localhost:3000/account](http://localhost:3000/account) এ যান।
+   - যেহেতু আপনি লগইন করা নেই, স্বয়ংক্রিয়ভাবে আপনাকে [http://localhost:3000/login?callbackUrl=%2Faccount](http://localhost:3000/login?callbackUrl=%2Faccount) পেজে রিডাইরেক্ট করবে।
+   - "Create account"-এ গিয়ে একটি নতুন অ্যাকাউন্ট তৈরি করুন (অথবা লগইন করুন)।
+   - লগইন হওয়া মাত্রই আপনি রিডাইরেক্ট হয়ে চমৎকার কাস্টমার অ্যাকাউন্ট ড্যাশবোর্ডে পৌঁছে যাবেন!
+3. টেস্ট করুন অ্যাডমিন এক্সেস গার্ড:
+   - কাস্টমার হিসেবে লগইন থাকা অবস্থায় ব্রাউজারে [http://localhost:3000/admin](http://localhost:3000/admin) লিখুন।
+   - সার্ভার সিকিউরিটি গার্ড আপনাকে রিডাইরেক্ট করে দেবে কারণ কাস্টমাররা অ্যাডমিন ড্যাশবোর্ডে ঢুকতে পারবে না।
+4. নিজেকে অ্যাডমিন বানিয়ে টেস্ট করুন:
+   - টার্মিনালে রান করুন (আপনার রেজিস্টার্ড ইমেইল দিয়ে):
+     ```bash
+     npm run db:promote-admin your-email@example.com
+     ```
+   - এবার ব্রাউজারে [http://localhost:3000/admin](http://localhost:3000/admin) এ যান।
+   - চমৎকার এক্সিকিউটিভ অ্যাডমিন ড্যাশবোর্ড, লাইভ ডাটাবেজ কাউন্টার এবং সাইডবার দেখতে পাবেন!
+5. পরিবর্তনগুলো সন্তোষজনক হলে গিটহাবে ম্যানুয়ালি পুশ করুন:
+   ```bash
+   git add .
+   git commit -m "feat(auth): implement protected customer account portal and executive admin dashboard"
+   git push origin main
+   ```
+
+---
+
 *(পরবর্তী দিনের লগগুলো এখানে পর্যায়ক্রমে যোগ হবে)*
 
 

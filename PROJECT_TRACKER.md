@@ -50,13 +50,13 @@ approval and the manual Git outcome are recorded.
                 workflow                                                                                 push ready ready
   NESTORA-022   Implement core schema in        COMPLETED     NESTORA-021        Pass         Approved   Manual    Admin approval &
                 approved slices                                                                          push ready RBAC schema ready
-  NESTORA-023   Integrate Better Auth           READY         NESTORA-022                     Pending    Not       High risk
+  NESTORA-023   Integrate Better Auth           COMPLETED     NESTORA-022        Pass         Approved   Manual    PostgreSQL + Drizzle
                                                                                                          started   
 
-  NESTORA-024   Enforce Customer/Admin          NOT_STARTED   NESTORA-023                     Pending    Not       High risk
+  NESTORA-024   Enforce Customer/Admin          COMPLETED     NESTORA-023        Pass         Approved   Manual    Server guards &
                 authorization                                                                            started   
 
-  NESTORA-025   Build protected account/admin   NOT_STARTED   NESTORA-024                     Pending    Not       
+  NESTORA-025   Build protected account/admin   AWAITING_HUMAN_REVIEW NESTORA-024  Pass         Pending    Manual    /account & /admin
                 layouts                                                                                  started   
 
   NESTORA-030   Approve design direction and    NOT_STARTED   NESTORA-012,                    Pending    Not       Human visual
@@ -91,8 +91,8 @@ approval and the manual Git outcome are recorded.
   NESTORA-042   Implement guest-to-customer     NOT_STARTED   NESTORA-023,                    Pending    Not       
                 cart merge                                    NESTORA-041                                started   
 
-  NESTORA-043   Implement wishlist              AWAITING_HUMAN_REVIEW NESTORA-023,          Pass       Pending    Manual    Redux wishlist +
-                                                              NESTORA-022                                review     push ready /wishlist page
+  NESTORA-043   Implement wishlist              COMPLETED     NESTORA-023,          Pass       Approved   Pushed    Commit 84da67b
+                                                              NESTORA-022                                (84da67b)  (Oct 23)  Redux wishlist + /wishlist page
 
   NESTORA-044   Implement profile and saved     NOT_STARTED   NESTORA-023,                    Pending    Not       
                 addresses                                     NESTORA-022                                started   
