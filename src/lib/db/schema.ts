@@ -268,3 +268,23 @@ export const addresses = pgTable("addresses", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// Payments & Idempotency Audit (NESTORA-053 & NESTORA-054)
+export const payments = pgTable("payments", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  orderId: uuid("order_id")
+    .references(() => orders.id, { onDelete: "cascade" })
+    .notNull(),
+  provider: text("provider").default("MOCK_SANDBOX").notNull(),
+  providerTransactionId: text("provider_transaction_id").notNull().unique(),
+  amount: integer("amount").notNull(), // Minor units (cents)
+  currency: text("currency").default("USD").notNull(),
+  status: paymentStatusEnum("status").notNull(),
+  paymentMethodType: text("payment_method_type").default("CARD").notNull(),
+  cardBrand: text("card_brand"),
+  cardLast4: text("card_last_4"),
+  idempotencyKey: text("idempotency_key").notNull().unique(), // Hard database-level duplicate prevention
+  errorMessage: text("error_message"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+

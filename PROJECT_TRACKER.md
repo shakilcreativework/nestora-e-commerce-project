@@ -78,7 +78,7 @@ approval and the manual Git outcome are recorded.
   NESTORA-036   Build product detail page       COMPLETED     NESTORA-031,          Pass       Approved   Pushed    Commit 1a6b0a8
                                                               NESTORA-022                                (1a6b0a8)  (Oct 23)  Dynamic PDP & gallery
 
-  NESTORA-037   Add metadata and basic SEO      COMPLETED     NESTORA-032,                    Pass         Approved   Awaiting Review
+  NESTORA-037   Add metadata and basic SEO      COMPLETED     NESTORA-032,                    Pass         Approved   Pushed (bcd05eb)
                                                               NESTORA-033,                               Dynamic OpenGraph, sitemap.xml, robots.txt, Schema.org
                                                               NESTORA-036                                          
 
@@ -106,11 +106,11 @@ approval and the manual Git outcome are recorded.
   NESTORA-052   Create order and immutable      COMPLETED     NESTORA-051,       Pass         Approved   Manual    Transactional snapshots
                 snapshots                                     NESTORA-022                                started   
 
-  NESTORA-053   Isolated test/mock payment      NOT_STARTED   NESTORA-052                     Pending    Not       High risk
-                adapter                                                                                  started   
+  NESTORA-053   Isolated test/mock payment      COMPLETED     NESTORA-052         Pass       Approved   Awaiting  payments table, mock test matrix
+                adapter                                                                                  Review    cards & sandbox disclosure
 
-  NESTORA-054   Verify payment events and       NOT_STARTED   NESTORA-053                     Pending    Not       High risk
-                idempotency                                                                              started   
+  NESTORA-054   Verify payment events and       COMPLETED     NESTORA-053         Pass       Approved   Awaiting  idempotencyKey engine, 2-phase
+                idempotency                                                                              Review    atomic inventory deduction
 
   NESTORA-055   Apply inventory changes         COMPLETED     NESTORA-054        Pass         Approved   Manual    db.transaction()
                 transactionally                                                                          started   

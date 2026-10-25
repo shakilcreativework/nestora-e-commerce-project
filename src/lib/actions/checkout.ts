@@ -6,7 +6,9 @@ import { eq, inArray, sql } from "drizzle-orm";
 import { getCurrentUser } from "@/lib/auth-guard";
 import { z } from "zod";
 
-// Zod schema for checkout submission
+import { executeMockPayment } from "@/lib/payments/mock-adapter";
+
+// Zod schema for checkout submission with idempotency protection (NESTORA-053 & NESTORA-054)
 const checkoutSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
@@ -20,6 +22,9 @@ const checkoutSchema = z.object({
   shippingMethod: z.enum(["STANDARD", "EXPRESS"]),
   customerNote: z.string().optional(),
   couponCode: z.string().optional(),
+  cardNumber: z.string().optional(),
+  cardholderName: z.string().optional(),
+  idempotencyKey: z.string().min(6, "Idempotency key is required"),
   items: z
     .array(
       z.object({
@@ -324,21 +329,23 @@ export async function placeOrder(rawInput: CheckoutInput): Promise<{
       }
     }
 
-    // 4. Generate unique order number (e.g., ORD-20261023-4821)
+    // 4. Generate unique order number (e.g., ORD-20261025-4821)
     const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
     const orderNumber = `ORD-${today}-${randomSuffix}`;
 
-    // 5. Transactional Execution
+    // 5. PHASE 1: Create Order in PENDING_PAYMENT state with immutable item snapshots
+    // Stock is NOT decremented yet (PRD 8.4 Line 306 standard)
+    let createdOrderId: string;
+
     await db.transaction(async (tx) => {
-      // A. Create Order Snapshot
       const [newOrder] = await tx
         .insert(orders)
         .values({
           orderNumber,
           userId: orderUserId!,
-          status: "CONFIRMED", // Test sandbox sets order to confirmed
-          paymentStatus: "PAID", // Test mode marked as paid
+          status: "PENDING_PAYMENT",
+          paymentStatus: "UNPAID",
           currency,
           subtotal,
           discountAmount,
@@ -358,13 +365,13 @@ export async function placeOrder(rawInput: CheckoutInput): Promise<{
             shippingMethod: input.shippingMethod,
           },
           customerNote: input.customerNote || null,
-          paidAt: new Date(),
         })
         .returning({ id: orders.id });
 
-      // B. Create Immutable Order Item Snapshots and adjust stock
+      createdOrderId = newOrder.id;
+
+      // Create Immutable Order Item Snapshots
       for (const item of items) {
-        // Find variant ID
         const [variant] = await tx
           .select({
             id: productVariants.id,
@@ -385,28 +392,27 @@ export async function placeOrder(rawInput: CheckoutInput): Promise<{
           quantity: item.quantity,
           lineTotal: item.lineTotal,
         });
-
-        // Transactionally decrement stock (NESTORA-055)
-        if (variant) {
-          const updatedStock = Math.max(0, variant.stockQuantity - item.quantity);
-          await tx
-            .update(productVariants)
-            .set({ stockQuantity: updatedStock, updatedAt: new Date() })
-            .where(eq(productVariants.id, variant.id));
-        }
-      }
-
-      // C. Atomically increment coupon usage if applied
-      if (verifiedCoupon) {
-        await tx
-          .update(coupons)
-          .set({
-            usageCount: sql`${coupons.usageCount} + 1`,
-            updatedAt: new Date(),
-          })
-          .where(eq(coupons.code, verifiedCoupon));
       }
     });
+
+    // 6. PHASE 2: Execute Isolated Mock Payment with Idempotency Protection (NESTORA-053 & NESTORA-054)
+    const paymentResult = await executeMockPayment({
+      orderId: createdOrderId!,
+      orderNumber,
+      amount: totalAmount,
+      currency,
+      cardNumber: input.cardNumber || "4242 4242 4242 4242",
+      cardholderName: input.cardholderName || input.fullName,
+      idempotencyKey: input.idempotencyKey,
+    });
+
+    if (!paymentResult.success) {
+      return {
+        success: false,
+        orderNumber,
+        error: paymentResult.error || "Payment authorization failed. Your card was not charged.",
+      };
+    }
 
     return {
       success: true,

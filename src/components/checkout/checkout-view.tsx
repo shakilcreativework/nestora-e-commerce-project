@@ -55,6 +55,15 @@ export function CheckoutView({ initialUser, savedAddresses = [] }: CheckoutViewP
   const [shippingMethod, setShippingMethod] = useState<"STANDARD" | "EXPRESS">("STANDARD");
   const [customerNote, setCustomerNote] = useState("");
 
+  // Sandbox Test Payment Matrix (NESTORA-053 & NESTORA-054)
+  const [testCardOption, setTestCardOption] = useState<
+    "SUCCESS" | "DECLINE_FUNDS" | "DECLINE_EXPIRED"
+  >("SUCCESS");
+  const [cardholderName, setCardholderName] = useState(initialUser?.name || "");
+  const [idempotencyKey] = useState(
+    () => `idem_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+  );
+
   // Auto-populate default saved address if available
   useEffect(() => {
     if (savedAddresses && savedAddresses.length > 0 && !address) {
@@ -140,6 +149,12 @@ export function CheckoutView({ initialUser, savedAddresses = [] }: CheckoutViewP
     setIsSubmitting(true);
 
     try {
+      const testCardNumbers = {
+        SUCCESS: "4242 4242 4242 4242",
+        DECLINE_FUNDS: "4000 0000 0000 0002",
+        DECLINE_EXPIRED: "4000 0000 0000 0003",
+      };
+
       const response = await placeOrder({
         fullName,
         email,
@@ -153,6 +168,9 @@ export function CheckoutView({ initialUser, savedAddresses = [] }: CheckoutViewP
         shippingMethod,
         customerNote,
         couponCode: appliedCoupon?.code,
+        cardNumber: testCardNumbers[testCardOption],
+        cardholderName: cardholderName || fullName,
+        idempotencyKey,
         items: cartItems.map((item) => ({
           id: item.id,
           quantity: item.quantity,
@@ -505,7 +523,7 @@ export function CheckoutView({ initialUser, savedAddresses = [] }: CheckoutViewP
             </div>
           </div>
 
-          {/* 4. Payment Simulation */}
+          {/* 4. Isolated Mock Sandbox Payment (NESTORA-053 & NESTORA-054) */}
           <div className="rounded-2xl bg-card border border-border/80 p-6 space-y-4 shadow-xs">
             <div className="flex items-center justify-between">
               <h2 className="font-serif text-lg font-bold text-foreground flex items-center gap-2">
@@ -514,25 +532,138 @@ export function CheckoutView({ initialUser, savedAddresses = [] }: CheckoutViewP
                 </span>
                 Payment Method
               </h2>
-              <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                Sandbox Encrypted
+                Sandbox Test Gateway
               </span>
             </div>
 
-            <div className="p-4 rounded-xl border border-primary/40 bg-primary/5 space-y-3">
-              <div className="flex items-center justify-between text-xs sm:text-sm">
-                <div className="flex items-center gap-2 font-semibold text-foreground">
-                  <CreditCard className="w-4 h-4 text-primary" />
-                  <span>Sandbox Test Card (Simulated Checkout)</span>
-                </div>
-                <span className="font-mono text-[11px] text-muted-foreground">Demo Mode</span>
+            {/* Sandbox Disclosure Banner (PRD Requirement) */}
+            <div className="p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-800 dark:text-amber-200 text-xs flex items-start gap-2.5">
+              <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold">Portfolio Sandbox Environment</p>
+                <p className="text-[11px] text-amber-700 dark:text-amber-300 mt-0.5">
+                  No real credit card numbers or money are processed. Select a simulated test card scenario below to test real-time approval or decline handling.
+                </p>
               </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Orders are processed safely in demonstration sandbox mode. Real credit cards are not
-                charged, but inventory stock and immutable snapshots are strictly enforced in
-                PostgreSQL.
-              </p>
+            </div>
+
+            {/* Test Card Matrix Selector */}
+            <div className="space-y-2.5 pt-1">
+              <label className="text-xs font-semibold text-foreground">
+                Select Simulated Test Card:
+              </label>
+
+              {/* Scenario 1: Instant Approval */}
+              <div
+                onClick={() => setTestCardOption("SUCCESS")}
+                className={`p-3.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                  testCardOption === "SUCCESS"
+                    ? "border-emerald-600 bg-emerald-500/5 ring-1 ring-emerald-600"
+                    : "border-border hover:bg-muted/40"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 rounded-full border border-emerald-600 flex items-center justify-center">
+                    {testCardOption === "SUCCESS" && (
+                      <div className="w-2 h-2 rounded-full bg-emerald-600" />
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="w-4 h-4 text-emerald-600" />
+                      <span className="font-mono text-xs font-semibold text-foreground">
+                        4242 •••• •••• 4242
+                      </span>
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                        Visa • Instant Success
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      Simulates successful payment authorization, stock deduction & order confirmation
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Scenario 2: Decline - Insufficient Balance */}
+              <div
+                onClick={() => setTestCardOption("DECLINE_FUNDS")}
+                className={`p-3.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                  testCardOption === "DECLINE_FUNDS"
+                    ? "border-destructive bg-destructive/5 ring-1 ring-destructive"
+                    : "border-border hover:bg-muted/40"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 rounded-full border border-destructive flex items-center justify-center">
+                    {testCardOption === "DECLINE_FUNDS" && (
+                      <div className="w-2 h-2 rounded-full bg-destructive" />
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="w-4 h-4 text-destructive" />
+                      <span className="font-mono text-xs font-semibold text-foreground">
+                        4000 •••• •••• 0002
+                      </span>
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-destructive/10 text-destructive border border-destructive/20">
+                        Simulate Decline (Insufficient Balance)
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      Simulates bank rejection. Verifies that stock is NOT decremented upon failure.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Scenario 3: Decline - Expired Card */}
+              <div
+                onClick={() => setTestCardOption("DECLINE_EXPIRED")}
+                className={`p-3.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                  testCardOption === "DECLINE_EXPIRED"
+                    ? "border-amber-600 bg-amber-500/5 ring-1 ring-amber-600"
+                    : "border-border hover:bg-muted/40"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 rounded-full border border-amber-600 flex items-center justify-center">
+                    {testCardOption === "DECLINE_EXPIRED" && (
+                      <div className="w-2 h-2 rounded-full bg-amber-600" />
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="w-4 h-4 text-amber-600" />
+                      <span className="font-mono text-xs font-semibold text-foreground">
+                        4000 •••• •••• 0003
+                      </span>
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                        Simulate Decline (Card Expired)
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      Simulates invalid card expiration rejection.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Cardholder Name Input */}
+            <div className="space-y-1.5 pt-2">
+              <label className="text-xs font-semibold text-foreground">
+                Cardholder Name
+              </label>
+              <input
+                type="text"
+                value={cardholderName}
+                onChange={(e) => setCardholderName(e.target.value)}
+                placeholder={fullName || "Jane Doe"}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-xs sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+              />
             </div>
 
             <div className="space-y-1.5">

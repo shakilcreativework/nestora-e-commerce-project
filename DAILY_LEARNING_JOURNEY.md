@@ -1216,6 +1216,57 @@ Building with a strict human-in-the-loop review process and zero auto-pushes. Ex
 
 ---
 
+## 💳 Day 6 (Part 3): Isolated Mock Payment Adapter, Two-Phase Checkout & Hard Idempotency Engine (NESTORA-053 & NESTORA-054)
+- **তারিখ:** ২৫ অক্টোবর, ২০২৬
+- **স্ট্যাটাস:** Completed & Verified (Build Passed 100%, PostgreSQL `payments` Table Migrated)
+- **মূল লক্ষ্য:** 
+  1. চেকআউট ফ্লোতে রিয়েল এন্টারপ্রাইজ টু-ফেজ কমিট (Two-Phase Commit) আর্কিটেকচার তৈরি করা।
+  2. অর্ডার প্রথমে `PENDING_PAYMENT` এবং `UNPAID` অবস্থায় তৈরি হবে—পেমেন্ট সফল হওয়ার আগে কোনো স্টক কাটা হবে না।
+  3. আইসোলেটেড মক স্যান্ডবক্স পেমেন্ট অ্যাডাপ্টার (`src/lib/payments/mock-adapter.ts`) তৈরি করা, যাতে গ্রাহক বাস্তবসম্মত টেস্ট কার্ড (Instant Success বনাম Insufficient Funds Decline) নির্বাচন করতে পারেন।
+  4. হার্ড ডাটাবেজ-লেভেল আইডেমপোটেন্সি কি (`idempotency_key` unique constraint) ইমপ্লিমেন্ট করা, যাতে গ্রাহক ভুলবশত মাল্টিপল ক্লিক বা ব্রাউজার রিফ্রেশ মারলেও এক অর্ডারে দুইবার চার্জ বা স্টক কর্তন অসম্ভব হয়।
+
+### 🧠 আর্কিটেকচারাল সমাধান ও সিনিয়র ডেভেলপার ডিসিশনস:
+1. **Database-Level Idempotency (`payments` Table in `schema.ts`):**
+   - **সমস্যা (জুনিয়র ঝুঁকি):** পেমেন্ট গেটওয়ের রিট্রাই বা ডাবল ক্লিকের কারণে গ্রাহকের ব্যালেন্স দুইবার কেটে যাওয়া এবং ওয়্যারহাউস স্টক মাইনাস হয়ে যাওয়া।
+   - **সিনিয়র আর্কিটেকচার:** `idempotency_key` ফিল্ডে ডাটাবেজ লেভেলে ইউনিক কনস্ট্রেইন্ট দেওয়া হয়েছে। যখনই কোনো পেমেন্ট রিকোয়েস্ট আসে, মেমোরিতে নয়—সরাসরি ডাটাবেজে চেক করা হয়। পূর্বের সফল পেমেন্ট থাকলে তা দ্বিতীয়বার কোনো স্টক না কেটে ইনস্ট্যান্ট আগের ট্রানজ্যাকশন আইডি ফেরত দেয়।
+2. **Two-Phase Atomic Order Lifecycle (`src/lib/actions/checkout.ts`):**
+   - **ফেজ ১:** অর্ডার তৈরি হয় `PENDING_PAYMENT` স্ট্যাটাসে এবং `order_items` টেবিলের ইমিউটেবল স্ন্যাপশট সংরক্ষিত হয়।
+   - **ফেজ ২:** `executeMockPayment` এক্সিকিউট হয়। পেমেন্ট অনুমোদন পেলেই কেবল একটি অ্যাটমিক ডাটাবেজ ট্রানজ্যাকশনে (`db.transaction`):
+     - `payments` টেবিলে সাকসেস রেকর্ড ঢোকে।
+     - `orders` স্ট্যাটাস `CONFIRMED` ও `PAID` হয়।
+     - ভ্যারিয়েন্টের `stockQuantity` কমে এবং `inventory_audit_logs`-এ অডিট রেকর্ড লিপিবদ্ধ হয়।
+     - কুপনের `usageCount` বৃদ্ধি পায়।
+   - পেমেন্ট ডিক্লাইন হলে (যেমন: অপর্যাপ্ত ব্যালেন্স কার্ড) অর্ডার `PAYMENT_FAILED` হয়, কোনো স্টক কাটা হয় না, এবং গ্রাহককে স্পষ্ট এরর মেসেজ দেখিয়ে পুনরায় কার্ড পরিবর্তন করে ট্রাই করার সুযোগ দেওয়া হয়।
+3. **Interactive Sandbox Payment Matrix UI (`src/components/checkout/checkout-view.tsx`):**
+   - চেকআউট পেজে স্পষ্ট ডিসক্লেমার ব্যানার এবং ৩টি প্রি-কনফিগার করা টেস্ট কার্ড রেডিও অপশন:
+     - `4242 4242 4242 4242`: Visa • Instant Success
+     - `4000 0000 0000 0002`: Simulate Decline (Insufficient Balance)
+     - `4000 0000 0000 0003`: Simulate Decline (Card Expired)
+
+### 🧪 ভেরিফিকেশন রেজাল্ট:
+- `npx drizzle-kit push --force` ➔ **PASS** (`payments` টেবিল ও ফরেন কি মাইগ্রেশন সফল)
+- `npm run typecheck` ➔ **PASS** (০ টাইপ এরর)
+- `npm run build` ➔ **PASS** (সমস্ত রুট ১০০% কম্পাইলড ও অপ্টিমাইজড)
+
+### 📋 আপনার জন্য স্টেপ-বাই-স্টেপ টেস্ট চেকলিস্ট:
+1. **সাকসেস পেমেন্ট ফ্লো টেস্ট:**
+   - ব্রাউজারে [http://localhost:3000/shop](http://localhost:3000/shop) থেকে যেকোনো প্রোডাক্ট কার্টে যোগ করে [http://localhost:3000/checkout](http://localhost:3000/checkout) এ যান।
+   - শিপিং তথ্য দিন। Payment Method সেকশনে ডিফল্ট **"4242 •••• •••• 4242 (Visa • Instant Success)"** সিলেক্ট করা থাকবে।
+   - "Complete Order & Pay" বাটনে ক্লিক করুন। দেখুন সাথে সাথে পেমেন্ট অনুমোদিত হয়ে অর্ডার কনফার্মেশন পেজে (`/checkout/success`) চলে গেছে!
+2. **ডিক্লাইন / ইনসাফিসিয়েন্ট ব্যালেন্স টেস্ট:**
+   - আরেকটি প্রোডাক্ট কার্টে নিয়ে চেকআউট পেজে আসুন।
+   - এবার টেস্ট কার্ড হিসেবে **"4000 •••• •••• 0002 (Simulate Decline - Insufficient Balance)"** সিলেক্ট করে "Complete Order & Pay" চাপুন।
+   - লক্ষ্য করুন: স্ক্রিনে সাথে সাথে লাল ব্যাজে এরর দেখাচ্ছে: *"Payment authorization failed: Sandbox Payment Declined: Insufficient funds in test account."*
+   - ডাটাবেজে কোনো স্টক কাটা হয়নি এবং অর্ডারটি সেফলি `PAYMENT_FAILED` স্ট্যাটাসে লক রয়েছে!
+3. পরিবর্তনগুলো সন্তোষজনক হলে গিটহাবে ম্যানুয়ালি পুশ করুন:
+   ```bash
+   git add .
+   git commit -m "feat(payment): implement isolated mock sandbox payment adapter, two-phase checkout, and idempotency key engine"
+   git push origin main
+   ```
+
+---
+
 *(পরবর্তী দিনের লগগুলো এখানে পর্যায়ক্রমে যোগ হবে)*
 
 
