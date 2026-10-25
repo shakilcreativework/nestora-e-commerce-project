@@ -106,11 +106,11 @@ approval and the manual Git outcome are recorded.
   NESTORA-052   Create order and immutable      COMPLETED     NESTORA-051,       Pass         Approved   Manual    Transactional snapshots
                 snapshots                                     NESTORA-022                                started   
 
-  NESTORA-053   Isolated test/mock payment      COMPLETED     NESTORA-052         Pass       Approved   Awaiting  payments table, mock test matrix
-                adapter                                                                                  Review    cards & sandbox disclosure
+  NESTORA-053   Isolated test/mock payment      COMPLETED     NESTORA-052         Pass       Approved   Pushed (3e6b6f6) payments table, mock test matrix
+                adapter                                                                                            cards & sandbox disclosure
 
-  NESTORA-054   Verify payment events and       COMPLETED     NESTORA-053         Pass       Approved   Awaiting  idempotencyKey engine, 2-phase
-                idempotency                                                                              Review    atomic inventory deduction
+  NESTORA-054   Verify payment events and       COMPLETED     NESTORA-053         Pass       Approved   Pushed (3e6b6f6) idempotencyKey engine, 2-phase
+                idempotency                                                                                        atomic inventory deduction
 
   NESTORA-055   Apply inventory changes         COMPLETED     NESTORA-054        Pass         Approved   Manual    db.transaction()
                 transactionally                                                                          started   
@@ -145,8 +145,8 @@ approval and the manual Git outcome are recorded.
   NESTORA-067   Admin dashboard summary metrics COMPLETED     NESTORA-061,       Pass         Approved   Awaiting  Live telemetry KPIs,
                                                               NESTORA-064                                 Review    clickable stat routing
 
-  NESTORA-070   Unit/integration test coverage  NOT_STARTED   Core features                   Pending    Not       
-                pass                                                                                     started   
+  NESTORA-070   Unit/integration test coverage  AWAITING_     Core features      Pass         Pending    Pending   23 tests pass (176ms), pure
+                pass                            HUMAN_REVIEW                                                        business logic verified
 
   NESTORA-071   Playwright critical-path E2E    NOT_STARTED   Checkout, auth,                 Pending    Not       
                 tests                                         admin                                      started   
