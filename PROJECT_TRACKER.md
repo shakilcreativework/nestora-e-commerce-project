@@ -148,11 +148,11 @@ approval and the manual Git outcome are recorded.
   NESTORA-070   Unit/integration test coverage  COMPLETED     Core features      Pass         Approved   Pushed (1503324) 23 tests pass (176ms), pure
                 pass                                                                                                            business logic verified
 
-  NESTORA-071   Playwright critical-path E2E    AWAITING_     Checkout, auth,    Pass         Pending    Pending   4/4 critical E2E paths passed
-                tests                           HUMAN_REVIEW  admin                                                 (browse, cart, checkout, RBAC)
+  NESTORA-071   Playwright critical-path E2E    COMPLETED     Checkout, auth,    Pass         Approved   Pushed (7388921) 4/4 critical E2E paths passed
+                tests                                         admin                                                 (browse, cart, checkout, RBAC)
 
-  NESTORA-072   Accessibility/responsive audit  NOT_STARTED   Core UI                         Pending    Not       
-                                                                                                         started   
+  NESTORA-072   Accessibility/responsive audit  AWAITING_     Core UI            Pass         Pending    Pending   12/12 responsive & a11y tests pass
+                                                HUMAN_REVIEW                                                        (xs to 2xl, 0 overflow, single H1)
 
   NESTORA-073   Security and privacy review     NOT_STARTED   Auth, checkout,                 Pending    Not       High risk
                                                               admin                                      started   
