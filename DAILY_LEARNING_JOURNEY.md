@@ -1176,6 +1176,46 @@ Building with a strict human-in-the-loop review process and zero auto-pushes. Ex
 
 ---
 
+## 🌐 Day 6 (Part 2): Dynamic Metadata, OpenGraph, Next.js Sitemap & Schema.org Rich Snippets (NESTORA-037)
+- **তারিখ:** ২৫ অক্টোবর, ২০২৬
+- **স্ট্যাটাস:** Completed & Verified (Build Passed 100%, /robots.txt & /sitemap.xml Active)
+- **মূল লক্ষ্য:** 
+  1. সোশ্যাল মিডিয়া (Facebook, Twitter/X, LinkedIn) প্রিভিউ কার্ডের জন্য ডাইনামিক OpenGraph ইমেজ ও বিবরণ যুক্ত করা।
+  2. Next.js Metadata Route স্ট্যান্ডার্ডে `/robots.txt` তৈরি করে সার্চ ইঞ্জিন বট থেকে সংবেদনশীল অ্যাডমিন ও অ্যাকাউন্ট রুট প্রটেক্ট করা।
+  3. PostgreSQL থেকে স্বয়ংক্রিয়ভাবে সমস্ত অ্যাক্টিভ ও অ্যাপ্রুভড পণ্য এবং ক্যাটাগরি ফেচ করে ডাইনামিক `/sitemap.xml` তৈরি করা।
+  4. Google Shopping ও সার্চ ফলাফলে স্টার রেটিং, সঠিক মূল্য ও ইন-স্টক ব্যাজ দেখানোর জন্য Schema.org `Product` ও `OnlineStore` JSON-LD ইনজেক্ট করা।
+
+### 🧠 আর্কিটেকচারাল সমাধান ও সিনিয়র ডেভেলপার ডিসিশনস:
+1. **Dynamic OpenGraph & Twitter Cards (`src/app/product/[slug]/page.tsx`, `shop/page.tsx`, `category/[slug]/page.tsx`):**
+   - **কেন জরুরি:** স্ট্যাটিক টাইটেল দিলে সোশ্যাল মিডিয়ায় শেয়ার করলে শুধু সাইটের হোমপেজের ছবি আসত। এখন সার্ভার প্রতিটি প্রোডাক্টের নিজস্ব হাই-রেজ্যুলেশন প্রাইমারি ইমেজ (`sortOrder: 0`) ও এসইও ডেসক্রিপশন ফেচ করে রিচ প্রিভিউ কার্ড রেন্ডার করে।
+2. **Next.js Metadata Route: `src/app/robots.ts`:**
+   - সার্চ ইঞ্জিন রোবটদের জন্য ক্লিয়ার ডিরেক্টিভ দেওয়া হয়েছে: `/`, `/shop`, `/product/*`, `/category/*` ইনডেক্স করার অনুমতি থাকলেও `/admin/*`, `/account/*`, `/checkout/*`, `/api/*` কঠোরভাবে `disallow` করা হয়েছে।
+3. **Automated XML Sitemap: `src/app/sitemap.ts`:**
+   - স্ট্যাটিক পেজ ছাড়াও ডাটাবেজ থেকে লাইভ `updatedAt` টাইমস্ট্যাম্প সহ সমস্ত অ্যাক্টিভ প্রোডাক্ট ও ক্যাটাগরির ইউআরএল জেনারেট করে।
+4. **Structured Data JSON-LD (Schema.org / Google Rich Snippets):**
+   - `RootLayout`-এ `OnlineStore` স্কিমা এবং প্রতিটি প্রোডাক্ট পেজে `Product` + `Offer` + `AggregateRating` স্কিমা মেশিন-রিডেবল ফরম্যাটে ইনজেক্ট করা হয়েছে, ফলে গুগল সার্চ ফলাফলে সরাসরি দাম এবং ইন-স্টক উপস্থিতি প্রদর্শিত হবে।
+
+### 🧪 ভেরিফিকেশন রেজাল্ট:
+- `npm run typecheck` ➔ **PASS** (০ টাইপ এরর)
+- `npm run build` ➔ **PASS** (`/robots.txt` স্ট্যাটিক ও `/sitemap.xml` ডাইনামিক মেটাডাটা রুট হিসেবে বিল্ড নিশ্চিত হয়েছে)
+
+### 📋 আপনার জন্য স্টেপ-বাই-স্টেপ টেস্ট চেকলিস্ট:
+1. **XML Sitemap ও Robots.txt চেক:**
+   - ব্রাউজারে [http://localhost:3000/robots.txt](http://localhost:3000/robots.txt) এ যান। দেখুন অ্যাডমিন/অ্যাকাউন্ট রুট ব্লকিং ও সাইটম্যাপ লিঙ্ক সঠিকভাবে প্রদর্শিত হচ্ছে।
+   - [http://localhost:3000/sitemap.xml](http://localhost:3000/sitemap.xml) এ যান। দেখুন ডাটাবেজের লাইভ প্রোডাক্ট ও ক্যাটাগরিগুলোর পরিষ্কার XML ম্যাপ তৈরি হয়েছে!
+2. **প্রোডাক্ট পেজ মেটাডাটা ও JSON-LD চেক:**
+   - যেকোনো প্রোডাক্ট পেজে যান (যেমন: [http://localhost:3000/product/kanso-oak-monitor-riser](http://localhost:3000/product/kanso-oak-monitor-riser))।
+   - পেজে রাইট ক্লিক করে **"View Page Source"** (বা `Ctrl + U`) চাপুন।
+   - `og:image`, `og:title`, `twitter:card` এবং `<script type="application/ld+json">` ট্যাগে Schema.org Product স্কিমা দেখতে পাবেন।
+3. পরিবর্তনগুলো সন্তোষজনক হলে গিটহাবে ম্যানুয়ালি পুশ করুন:
+   ```bash
+   git add .
+   git commit -m "feat(seo): implement dynamic sitemap, robots route, opengraph cards, and schema.org product rich snippets"
+   git push origin main
+   ```
+
+---
+
 *(পরবর্তী দিনের লগগুলো এখানে পর্যায়ক্রমে যোগ হবে)*
 
 

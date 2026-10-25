@@ -13,19 +13,23 @@ import { ProductCard } from "@/components/products/product-card";
 import { getProductReviews } from "@/lib/actions/reviews";
 import { getCurrentUser } from "@/lib/auth-guard";
 import { Sparkles, ArrowRight } from "lucide-react";
+import { env } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
+
+const baseUrl = env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
-// Dynamic SEO Metadata
+// Dynamic SEO & OpenGraph Metadata (NESTORA-037)
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
 
   const [product] = await db
     .select({
+      id: products.id,
       name: products.name,
       shortDescription: products.shortDescription,
       seoTitle: products.seoTitle,
@@ -37,14 +41,53 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
   if (!product) {
     return {
-      title: "Product Not Found | NESTORA",
+      title: "Product Not Found",
       description: "The requested object is not available in our atelier collection.",
     };
   }
 
+  // Fetch primary image for OpenGraph / Twitter previews
+  const [primaryImage] = await db
+    .select({ url: productImages.url })
+    .from(productImages)
+    .where(and(eq(productImages.productId, product.id), eq(productImages.sortOrder, 0)))
+    .limit(1);
+
+  const title = product.seoTitle || product.name;
+  const description = product.seoDescription || product.shortDescription;
+  const imageUrl =
+    primaryImage?.url ||
+    "https://images.unsplash.com/photo-1593062096033-9a26b09da705?auto=format&fit=crop&w=1200&h=630&q=85";
+  const canonicalUrl = `${baseUrl}/product/${slug}`;
+
   return {
-    title: `${product.seoTitle || product.name} — NESTORA`,
-    description: product.seoDescription || product.shortDescription,
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      type: "article",
+      locale: "en_US",
+      url: canonicalUrl,
+      title: `${title} | NESTORA`,
+      description,
+      siteName: "NESTORA",
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: product.name,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | NESTORA`,
+      description,
+      images: [imageUrl],
+    },
   };
 }
 
@@ -144,8 +187,51 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   const reviewSummary = await getProductReviews(product.id);
   const currentUser = await getCurrentUser();
 
+  // 5. Build Schema.org Product Structured Data (NESTORA-037)
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    image: images.map((i) => i.url),
+    description: product.shortDescription,
+    sku: product.sku,
+    brand: {
+      "@type": "Brand",
+      name: product.brand || "NESTORA",
+    },
+    offers: {
+      "@type": "Offer",
+      url: `${baseUrl}/product/${product.slug}`,
+      priceCurrency: product.currency,
+      price: (product.price / 100).toFixed(2),
+      priceValidUntil: "2027-12-31",
+      itemCondition: "https://schema.org/NewCondition",
+      availability:
+        totalStock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      seller: {
+        "@type": "Organization",
+        name: "NESTORA",
+      },
+    },
+    ...(reviewSummary.totalReviews > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: reviewSummary.averageRating,
+            reviewCount: reviewSummary.totalReviews,
+          },
+        }
+      : {}),
+  };
+
   return (
     <main className="min-h-screen w-full overflow-x-hidden flex flex-col justify-between selection:bg-[#264E3A] selection:text-white dark:selection:bg-[#478466]">
+      {/* Schema.org Product JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
+
       {/* Top Banner */}
       <div className="w-full bg-[#264E3A] dark:bg-[#182C22] text-stone-100 text-[11px] xs:text-xs py-1.5 px-3 xs:px-4 text-center font-medium tracking-wide flex items-center justify-center gap-2 overflow-hidden">
         <Sparkles className="w-3.5 h-3.5 text-[#B2834E] shrink-0" />

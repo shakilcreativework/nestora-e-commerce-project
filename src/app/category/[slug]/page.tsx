@@ -9,14 +9,17 @@ import { StorefrontHeader } from "@/components/navigation/storefront-header";
 import { StorefrontFooter } from "@/components/navigation/storefront-footer";
 import { CatalogView } from "@/components/products/catalog-view";
 import { Sparkles, ChevronRight } from "lucide-react";
+import { env } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
+
+const baseUrl = env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
 }
 
-// Dynamic SEO Metadata for Category
+// Dynamic SEO & OpenGraph Metadata for Category (NESTORA-037)
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
 
@@ -24,6 +27,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     .select({
       name: categories.name,
       description: categories.description,
+      imageUrl: categories.imageUrl,
     })
     .from(categories)
     .where(and(eq(categories.slug, slug), eq(categories.isActive, true)))
@@ -31,14 +35,46 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 
   if (!category) {
     return {
-      title: "Category Not Found | NESTORA",
+      title: "Category Not Found",
       description: "The requested collection is not available in our atelier.",
     };
   }
 
+  const title = `${category.name} Collection`;
+  const description = category.description || `Explore our thoughtfully crafted ${category.name} collection.`;
+  const imageUrl =
+    category.imageUrl ||
+    "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=1200&h=630&q=85";
+  const canonicalUrl = `${baseUrl}/category/${slug}`;
+
   return {
-    title: `${category.name} — NESTORA Collections`,
-    description: category.description || `Explore our curated ${category.name} collection.`,
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      type: "website",
+      locale: "en_US",
+      url: canonicalUrl,
+      title: `${title} | NESTORA`,
+      description,
+      siteName: "NESTORA",
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: category.name,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | NESTORA`,
+      description,
+      images: [imageUrl],
+    },
   };
 }
 

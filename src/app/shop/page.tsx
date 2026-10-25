@@ -8,13 +8,45 @@ import { StorefrontHeader } from "@/components/navigation/storefront-header";
 import { StorefrontFooter } from "@/components/navigation/storefront-footer";
 import { CatalogView } from "@/components/products/catalog-view";
 import { Sparkles, ChevronRight } from "lucide-react";
+import { env } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
+
+const baseUrl = env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
 
 export const metadata: Metadata = {
   title: "All Collections — NESTORA Atelier",
   description:
     "Explore the complete anthology of architectural desk organizers, calm ambient lighting, and master-crafted ceramics.",
+  alternates: {
+    canonical: `${baseUrl}/shop`,
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: `${baseUrl}/shop`,
+    title: "All Collections — NESTORA Atelier",
+    description:
+      "Explore the complete anthology of architectural desk organizers, calm ambient lighting, and master-crafted ceramics.",
+    siteName: "NESTORA",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=1200&h=630&q=85",
+        width: 1200,
+        height: 630,
+        alt: "NESTORA Full Catalog Anthology",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "All Collections — NESTORA Atelier",
+    description:
+      "Explore the complete anthology of architectural desk organizers, calm ambient lighting, and master-crafted ceramics.",
+    images: [
+      "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=1200&h=630&q=85",
+    ],
+  },
 };
 
 export default async function ShopPage() {
