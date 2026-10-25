@@ -88,8 +88,8 @@ approval and the manual Git outcome are recorded.
   NESTORA-041   Implement cart interactions     COMPLETED     NESTORA-040          Pass       Approved   Pushed    Commit 1a6b0a8
                                                                                                           (1a6b0a8)  (Oct 22)  Cart drawer + stepper
 
-  NESTORA-042   Implement guest-to-customer     NOT_STARTED   NESTORA-023,                    Pending    Not       
-                cart merge                                    NESTORA-041                                started   
+  NESTORA-042   Implement guest-to-customer     COMPLETED     NESTORA-023,       Pass         Approved   Awaiting  Authoritative stock-capped
+                cart merge                                    NESTORA-041                                 Review    cart merge engine, useCartMerge hook
 
   NESTORA-043   Implement wishlist              COMPLETED     NESTORA-023,          Pass       Approved   Pushed    Commit 84da67b
                                                               NESTORA-022                                (84da67b)  (Oct 23)  Redux wishlist + /wishlist page

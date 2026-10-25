@@ -94,6 +94,44 @@ export const cartSlice = createSlice({
     hydrateCart: (state, action: PayloadAction<CartItem[]>) => {
       state.items = action.payload;
     },
+
+    // Authoritative Cart Merge (NESTORA-042)
+    // Merges verified server items into current client state
+    mergeCartItems: (state, action: PayloadAction<CartItem[]>) => {
+      const incomingItems = action.payload;
+      if (!incomingItems || incomingItems.length === 0) return;
+
+      const itemMap = new Map<string, CartItem>();
+
+      // Index existing items
+      for (const item of state.items) {
+        itemMap.set(item.id, { ...item });
+      }
+
+      // Merge verified incoming items
+      for (const incoming of incomingItems) {
+        const existing = itemMap.get(incoming.id);
+        if (existing) {
+          const combinedQty = existing.quantity + incoming.quantity;
+          const cappedQty = incoming.maxStock
+            ? Math.min(combinedQty, incoming.maxStock)
+            : combinedQty;
+          itemMap.set(incoming.id, {
+            ...incoming, // update to latest server price, name, image, maxStock
+            quantity: cappedQty,
+          });
+        } else {
+          itemMap.set(incoming.id, { ...incoming });
+        }
+      }
+
+      state.items = Array.from(itemMap.values());
+    },
+
+    // Set cart items directly to verified state
+    setCartItems: (state, action: PayloadAction<CartItem[]>) => {
+      state.items = action.payload;
+    },
   },
 });
 
@@ -106,6 +144,8 @@ export const {
   removeFromCart,
   clearCart,
   hydrateCart,
+  mergeCartItems,
+  setCartItems,
 } = cartSlice.actions;
 
 // Selectors

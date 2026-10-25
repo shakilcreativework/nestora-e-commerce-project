@@ -4,12 +4,14 @@ import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signUp } from "@/lib/auth-client";
+import { useCartMerge } from "@/lib/hooks/use-cart-merge";
 import { User, Mail, Lock, ArrowRight, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const { executeCartMerge } = useCartMerge();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -45,6 +47,9 @@ function RegisterForm() {
       if (response.error) {
         setErrorMessage(response.error.message || "Failed to create account. Please try again.");
       } else {
+        // Execute deterministic guest-to-customer cart merge (NESTORA-042)
+        await executeCartMerge();
+
         setSuccessMessage("Account created successfully! Redirecting...");
         setTimeout(() => {
           router.push(callbackUrl);

@@ -4,12 +4,14 @@ import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "@/lib/auth-client";
+import { useCartMerge } from "@/lib/hooks/use-cart-merge";
 import { Mail, Lock, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const { executeCartMerge } = useCartMerge();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -36,6 +38,8 @@ function LoginForm() {
       if (response.error) {
         setErrorMessage(response.error.message || "Invalid email or password.");
       } else {
+        // Execute deterministic guest-to-customer cart merge (NESTORA-042)
+        await executeCartMerge();
         router.push(callbackUrl);
         router.refresh();
       }
