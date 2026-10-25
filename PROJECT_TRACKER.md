@@ -151,21 +151,20 @@ approval and the manual Git outcome are recorded.
   NESTORA-071   Playwright critical-path E2E    COMPLETED     Checkout, auth,    Pass         Approved   Pushed (7388921) 4/4 critical E2E paths passed
                 tests                                         admin                                                 (browse, cart, checkout, RBAC)
 
-  NESTORA-072   Accessibility/responsive audit  AWAITING_     Core UI            Pass         Pending    Pending   12/12 responsive & a11y tests pass
-                                                HUMAN_REVIEW                                                        (xs to 2xl, 0 overflow, single H1)
+  NESTORA-072   Accessibility/responsive audit  COMPLETED     Core UI            Pass         Approved   Pushed (6dc34b8) 12/12 responsive & a11y tests pass
+                                                                                                                    (xs to 2xl, 0 overflow, single H1)
 
-  NESTORA-073   Security and privacy review     NOT_STARTED   Auth, checkout,                 Pending    Not       High risk
-                                                              admin                                      started   
+  NESTORA-073   Security and privacy review     APPROVED      Auth, checkout,    Pass         Approved   Awaiting  5/5 security & privacy tests pass
+                                                               admin                                 Push      (HTTP headers, RBAC, 0 PAN/CVV leak)
 
-  NESTORA-074   Production build and migration  NOT_STARTED   Required features               Pending    Not       
-                rehearsal                                                                                started   
+  NESTORA-074   Production build and migration  APPROVED      Required features  Pass         Approved   Awaiting  Clean Next.js 16 build passed,
+                rehearsal                                                                                Push      drizzle-kit migration generated & checked
 
-  NESTORA-075   Deployment config and demo      NOT_STARTED   NESTORA-074                     Pending    Not       Human
-                disclosure                                                                               started   approval
-                                                                                                                   required
+  NESTORA-075   Deployment config and demo      APPROVED      NESTORA-074        Pass         Approved   Awaiting  Safe env config, honest demo disclosure
+                disclosure                                                                               Push      pages (/shipping, /returns, /contact)
 
-  NESTORA-076   README and portfolio handoff    NOT_STARTED   NESTORA-070--075                Pending    Not       
-                                                                                                         started   
+  NESTORA-076   README and portfolio handoff    AWAITING_     NESTORA-070--075   Pass         Pending    Pending   Comprehensive architecture README,
+                                                HUMAN_REVIEW                                                            ER diagram, testing pyramid & setup guide
   -----------------------------------------------------------------------------------------------------------------------------
 
 ## Task completion record template
