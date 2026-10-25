@@ -154,17 +154,17 @@ approval and the manual Git outcome are recorded.
   NESTORA-072   Accessibility/responsive audit  COMPLETED     Core UI            Pass         Approved   Pushed (6dc34b8) 12/12 responsive & a11y tests pass
                                                                                                                     (xs to 2xl, 0 overflow, single H1)
 
-  NESTORA-073   Security and privacy review     APPROVED      Auth, checkout,    Pass         Approved   Awaiting  5/5 security & privacy tests pass
-                                                               admin                                 Push      (HTTP headers, RBAC, 0 PAN/CVV leak)
+  NESTORA-073   Security and privacy review     COMPLETED     Auth, checkout,    Pass         Approved   Pushed (d7ce6fd) 5/5 security & privacy tests pass
+                                                               admin                                                 (HTTP headers, RBAC, 0 PAN/CVV leak)
 
-  NESTORA-074   Production build and migration  APPROVED      Required features  Pass         Approved   Awaiting  Clean Next.js 16 build passed,
-                rehearsal                                                                                Push      drizzle-kit migration generated & checked
+  NESTORA-074   Production build and migration  COMPLETED     Required features  Pass         Approved   Pushed (d7ce6fd) Clean Next.js 16 build passed,
+                rehearsal                                                                                            drizzle-kit migration generated & checked
 
-  NESTORA-075   Deployment config and demo      APPROVED      NESTORA-074        Pass         Approved   Awaiting  Safe env config, honest demo disclosure
-                disclosure                                                                               Push      pages (/shipping, /returns, /contact)
+  NESTORA-075   Deployment config and demo      COMPLETED     NESTORA-074        Pass         Approved   Pushed (d7ce6fd) Safe env config, honest demo disclosure
+                disclosure                                                                                           pages (/shipping, /returns, /contact)
 
-  NESTORA-076   README and portfolio handoff    AWAITING_     NESTORA-070--075   Pass         Pending    Pending   Comprehensive architecture README,
-                                                HUMAN_REVIEW                                                            ER diagram, testing pyramid & setup guide
+  NESTORA-076   README and portfolio handoff    COMPLETED     NESTORA-070--075   Pass         Approved   Pushed (d7ce6fd) Comprehensive architecture README,
+                                                                                                                     ER diagram, testing pyramid & setup guide
   -----------------------------------------------------------------------------------------------------------------------------
 
 ## Task completion record template

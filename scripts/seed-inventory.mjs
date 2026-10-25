@@ -1,7 +1,11 @@
 import { Pool } from "pg";
 
+const conn = process.env.DATABASE_URL || "postgresql://postgres:postgres@localhost:5432/nestora_db";
+const isRemote = conn.includes("render.com") || conn.includes("neon.tech") || conn.includes("sslmode=require");
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || "postgresql://postgres:postgres@localhost:5432/nestora_db",
+  connectionString: conn,
+  ssl: isRemote ? { rejectUnauthorized: false } : undefined,
 });
 
 async function seedInventoryAudit() {
