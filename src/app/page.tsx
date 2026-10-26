@@ -208,7 +208,7 @@ export default async function Home() {
             </h2>
           </div>
           <Link
-            href="/catalog"
+            href="/category"
             className="text-xs sm:text-sm font-semibold text-[#264E3A] dark:text-[#67B58E] hover:underline flex items-center gap-1"
           >
             <span>View All</span>
